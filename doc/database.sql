@@ -17,6 +17,7 @@ DROP TABLE IF EXISTS "sessions";
 DROP TABLE IF EXISTS "user_settings";
 DROP TABLE IF EXISTS "user_setting_defs";
 DROP TABLE IF EXISTS "global_settings";
+DROP TABLE IF EXISTS "extensions";
 DROP TABLE IF EXISTS "log";
 DROP TABLE IF EXISTS "users";
 
@@ -47,14 +48,24 @@ CREATE TABLE "log"(
 	"referrer" TEXT
 );
 
+-- Extensions
+CREATE TABLE "extensions"(
+	"id" INTEGER PRIMARY KEY,
+	"name" TEXT NOT NULL UNIQUE,
+	"load_order" INTEGER NOT NULL UNIQUE,
+	"enabled" INTEGER NOT NULL DEFAULT 1
+);
+
 -- Settings
 CREATE TABLE "global_settings"(
 	"key" TEXT NOT NULL,
+	"extension_id" INTEGER REFERENCES "extenstions" ON UPDATE CASCADE ON DELETE CASCADE,
 	"value" BLOB,
 	PRIMARY KEY("key") ON CONFLICT REPLACE
 );
 CREATE TABLE "user_setting_defs"(
 	"key" TEXT PRIMARY KEY,
+	"extension_id" INTEGER REFERENCES "extenstions" ON UPDATE CASCADE ON DELETE CASCADE,
 	"default" BLOB
 );
 CREATE TABLE "user_settings"(
