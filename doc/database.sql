@@ -37,15 +37,15 @@ CREATE TABLE "log"(
 	"id" INTEGER PRIMARY KEY,
 	"level" INTEGER,
 	"type" TEXT,
-	"timestamp" INTEGER,
+	"timestamp" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
+	"user_id" INTEGER REFERENCES "users" ON UPDATE CASCADE ON DELETE SET NULL,
 	"message" TEXT,
 	"details" BLOB,
-	"user_id" INTEGER REFERENCES "users" ON UPDATE CASCADE ON DELETE SET NULL,
+	"client_addr" TEXT,
 	"method" TEXT,
-	"uri" TEXT,
-	"ip_address" TEXT,
+	"path" TEXT,
+	"referrer" TEXT,
 	"user_agent" TEXT,
-	"referrer" TEXT
 );
 
 -- Extensions
