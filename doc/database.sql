@@ -5,15 +5,19 @@ BEGIN TRANSACTION;
 -- Major * 1,000,000 + Minor * 1,000 + Revision
 PRAGMA user_version = 3000000;
 
+DROP TABLE IF EXISTS "search_keyword_index";
+DROP TABLE IF EXISTS "search_file_index";
 DROP TABLE IF EXISTS "content_types";
 DROP TABLE IF EXISTS "bookmarks";
-DROP TABLE IF EXISTS "shares_in_groups";
-DROP TABLE IF EXISTS "shares";
+DROP TABLE IF EXISTS "mountpoints_in_groups";
+DROP TABLE IF EXISTS "mountpoints";
 DROP TABLE IF EXISTS "users_in_groups";
 DROP TABLE IF EXISTS "groups";
+DROP TABLE IF EXISTS "file_accesses";
 DROP TABLE IF EXISTS "login_persistence";
 DROP TABLE IF EXISTS "session_data";
 DROP TABLE IF EXISTS "sessions";
+DROP TABLE IF EXISTS "logins";
 DROP TABLE IF EXISTS "user_settings";
 DROP TABLE IF EXISTS "user_setting_defs";
 DROP TABLE IF EXISTS "global_settings";
@@ -29,7 +33,7 @@ CREATE TABLE "users"(
 	"administrator" INTEGER NOT NULL DEFAULT 0,
 	"read_only" INTEGER NOT NULL DEFAULT 0,
 	"enabled" INTEGER NOT NULL DEFAULT 1,
-	"description" TEXT NOT NULL
+	"description" TEXT
 );
 
 -- Log
@@ -38,63 +42,78 @@ CREATE TABLE "log"(
 	"level" INTEGER,
 	"type" TEXT,
 	"timestamp" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
-	"user_id" INTEGER REFERENCES "users" ON UPDATE CASCADE ON DELETE SET NULL,
+	"user" INTEGER REFERENCES "users" ON UPDATE CASCADE ON DELETE SET NULL,
 	"message" TEXT,
 	"details" BLOB,
 	"client_addr" TEXT,
 	"method" TEXT,
 	"path" TEXT,
 	"referrer" TEXT,
-	"user_agent" TEXT,
+	"user_agent" TEXT
 );
 
 -- Extensions
 CREATE TABLE "extensions"(
 	"id" INTEGER PRIMARY KEY,
 	"name" TEXT NOT NULL UNIQUE,
-	"load_order" INTEGER NOT NULL UNIQUE,
-	"enabled" INTEGER NOT NULL DEFAULT 1
+	"enabled" INTEGER NOT NULL DEFAULT 1,
+	"load_order" INTEGER NOT NULL UNIQUE
 );
 
 -- Settings
 CREATE TABLE "global_settings"(
-	"key" TEXT NOT NULL,
-	"extension_id" INTEGER REFERENCES "extenstions" ON UPDATE CASCADE ON DELETE CASCADE,
-	"value" BLOB,
-	PRIMARY KEY("key") ON CONFLICT REPLACE
+	"key" TEXT PRIMARY KEY ON CONFLICT REPLACE NOT NULL,
+	"extension" INTEGER REFERENCES "extenstions" ON UPDATE CASCADE ON DELETE CASCADE,
+	"default" BLOB,
+	"value" BLOB
 );
 CREATE TABLE "user_setting_defs"(
 	"key" TEXT PRIMARY KEY,
-	"extension_id" INTEGER REFERENCES "extenstions" ON UPDATE CASCADE ON DELETE CASCADE,
+	"extension" INTEGER REFERENCES "extenstions" ON UPDATE CASCADE ON DELETE CASCADE,
 	"default" BLOB
 );
 CREATE TABLE "user_settings"(
-	"user_id" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
+	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
 	"key" TEXT NOT NULL REFERENCES "user_setting_defs" ON UPDATE CASCADE ON DELETE CASCADE,
 	"value" BLOB,
-	PRIMARY KEY("user_id", "key") ON CONFLICT REPLACE
+	PRIMARY KEY("user", "key") ON CONFLICT REPLACE
 );
 
--- Sessions
+-- Logins and Sessions
+CREATE TABLE "logins"(
+	"id" INTEGER PRIMARY KEY,
+	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
+	"successful" INTEGER NOT NULL DEFAULT 1,
+	"timestamp" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
+	"client_addr" TEXT,
+	"user_agent" TEXT
+);
 CREATE TABLE "sessions"(
 	"id" TEXT PRIMARY KEY,
-	"user_id" INTEGER REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
-	"timestamp" INTEGER NOT NULL DEFAULT (STRFTIME('%S', 'now')),
-	"ip_address" TEXT
+	"login" INTEGER REFERENCES "logins" ON UPDATE CASCADE ON DELETE CASCADE,
+	"last_used" INTEGER NOT NULL DEFAULT (STRFTIME('%S', 'now'))
 );
 CREATE TABLE "session_data"(
-	"session_id" TEXT NOT NULL REFERENCES "sessions" ON UPDATE CASCADE ON DELETE CASCADE,
+	"session" TEXT NOT NULL REFERENCES "sessions" ON UPDATE CASCADE ON DELETE CASCADE,
 	"key" TEXT NOT NULL,
 	"value" BLOB,
-	PRIMARY KEY("session_id", "key") ON CONFLICT REPLACE
+	PRIMARY KEY("session", "key") ON CONFLICT REPLACE
 );
 
 -- Login Persistence
 CREATE TABLE "login_persistence"(
 	"key" TEXT PRIMARY KEY,
-	"user_id" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
+	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
 	"secret" BLOB NOT NULL,
 	"expires" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now') + 31536000)
+);
+
+-- File Accesses
+CREATE TABLE "file_accesses"(
+	"id" INTEGER PRIMARY KEY,
+	"session" TEXT NOT NULL REFERENCES "sessions" ON UPDATE CASCADE ON DELETE CASCADE,
+	"path" TEXT NOT NULL,
+	"timestamp" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
 );
 
 -- Groups
@@ -105,37 +124,57 @@ CREATE TABLE "groups"(
 	"description" TEXT
 );
 CREATE TABLE "users_in_groups"(
-	"user_id" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
-	"group_id" INTEGER NOT NULL REFERENCES "groups" ON UPDATE CASCADE ON DELETE CASCADE,
-	PRIMARY KEY("user_id", "group_id") ON CONFLICT REPLACE
+	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
+	"group" INTEGER NOT NULL REFERENCES "groups" ON UPDATE CASCADE ON DELETE CASCADE,
+	PRIMARY KEY("user", "group") ON CONFLICT REPLACE
 );
 
--- Shares
-CREATE TABLE "shares"(
+-- Mountpoints
+CREATE TABLE "mountpoints"(
 	"id" INTEGER PRIMARY KEY,
 	"name" TEXT NOT NULL UNIQUE,
-	"path" TEXT NOT NULL,
+	"type" TEXT NOT NULL,
+	"mount_directory" TEXT NOT NULL,
+	"mount_point" TEXT NOT NULL,
+	"options" BLOB,
 	"enabled" INTEGER NOT NULL DEFAULT 1,
 	"description" TEXT
 );
-CREATE TABLE "shares_in_groups"(
-	"share_id" INTEGER NOT NULL REFERENCES "shares" ON UPDATE CASCADE ON DELETE CASCADE,
-	"group_id" INTEGER NOT NULL REFERENCES "groups" ON UPDATE CASCADE ON DELETE CASCADE,
-	PRIMARY KEY("share_id", "group_id")
+CREATE TABLE "mountpoints_in_groups"(
+	"mountpoint" INTEGER NOT NULL REFERENCES "mountpoints" ON UPDATE CASCADE ON DELETE CASCADE,
+	"group" INTEGER NOT NULL REFERENCES "groups" ON UPDATE CASCADE ON DELETE CASCADE,
+	PRIMARY KEY("mountpoint", "group")
 );
 
 -- Bookmarks
 CREATE TABLE "bookmarks"(
 	"id" INTEGER PRIMARY KEY,
-	"user_id" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
+	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
 	"name" TEXT NOT NULL UNIQUE ON CONFLICT REPLACE,
-	"path" TEXT NOT NULL
+	"path" TEXT NOT NULL,
+	"sort_order" INTEGER NOT NULL,
+	UNIQUE("user", "sort_order")
 );
 
 -- Content-types
 CREATE TABLE "content_types"(
 	"extenstion" TEXT PRIMARY KEY ON CONFLICT REPLACE NOT NULL,
 	"content_type" TEXT NOT NULL
+);
+
+-- Search Index
+CREATE TABLE "search_file_index"(
+	"id" INTEGER PRIMARY KEY,
+	"directory" TEXT NOT NULL,
+	"filename" TEXT NOT NULL,
+	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
+	"type" INTEGER NOT NULL DEFAULT 1,
+	"size" INTEGER NOT NULL DEFAULT 0,
+	"last_updated" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
+);
+CREATE TABLE "search_keyword_index"(
+	"file" INTEGER NOT NULL REFERENCES "search_file_index" ON UPDATE CASCADE ON DELETE CASCADE,
+	"keyword" TEXT NOT NULL
 );
 
 COMMIT TRANSACTION;
