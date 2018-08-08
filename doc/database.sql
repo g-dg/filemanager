@@ -21,7 +21,6 @@ DROP TABLE IF EXISTS "logins";
 DROP TABLE IF EXISTS "user_settings";
 DROP TABLE IF EXISTS "user_setting_defs";
 DROP TABLE IF EXISTS "global_settings";
-DROP TABLE IF EXISTS "extensions";
 DROP TABLE IF EXISTS "log";
 DROP TABLE IF EXISTS "users";
 
@@ -52,24 +51,14 @@ CREATE TABLE "log"(
 	"user_agent" TEXT
 );
 
--- Extensions
-CREATE TABLE "extensions"(
-	"id" INTEGER PRIMARY KEY,
-	"name" TEXT NOT NULL UNIQUE,
-	"enabled" INTEGER NOT NULL DEFAULT 1,
-	"load_order" INTEGER NOT NULL UNIQUE
-);
-
 -- Settings
 CREATE TABLE "global_settings"(
 	"key" TEXT PRIMARY KEY ON CONFLICT REPLACE NOT NULL,
-	"extension" INTEGER REFERENCES "extenstions" ON UPDATE CASCADE ON DELETE CASCADE,
 	"default" BLOB,
 	"value" BLOB
 );
 CREATE TABLE "user_setting_defs"(
 	"key" TEXT PRIMARY KEY,
-	"extension" INTEGER REFERENCES "extenstions" ON UPDATE CASCADE ON DELETE CASCADE,
 	"default" BLOB
 );
 CREATE TABLE "user_settings"(
@@ -133,16 +122,16 @@ CREATE TABLE "users_in_groups"(
 CREATE TABLE "mountpoints"(
 	"id" INTEGER PRIMARY KEY,
 	"name" TEXT NOT NULL UNIQUE,
-	"type" TEXT NOT NULL,
-	"mount_directory" TEXT NOT NULL,
+	"target" TEXT NOT NULL,
 	"mount_point" TEXT NOT NULL,
-	"options" BLOB,
+	"writable" INTEGER NOT NULL DEFAULT 0,
 	"enabled" INTEGER NOT NULL DEFAULT 1,
 	"description" TEXT
 );
 CREATE TABLE "mountpoints_in_groups"(
 	"mountpoint" INTEGER NOT NULL REFERENCES "mountpoints" ON UPDATE CASCADE ON DELETE CASCADE,
 	"group" INTEGER NOT NULL REFERENCES "groups" ON UPDATE CASCADE ON DELETE CASCADE,
+	"writable" INTEGER NOT NULL DEFAULT 0,
 	PRIMARY KEY("mountpoint", "group")
 );
 
@@ -152,8 +141,7 @@ CREATE TABLE "bookmarks"(
 	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
 	"name" TEXT NOT NULL UNIQUE ON CONFLICT REPLACE,
 	"path" TEXT NOT NULL,
-	"sort_order" INTEGER NOT NULL,
-	UNIQUE("user", "sort_order")
+	"sort_order" INTEGER NOT NULL
 );
 
 -- Content-types
@@ -176,5 +164,7 @@ CREATE TABLE "search_keyword_index"(
 	"file" INTEGER NOT NULL REFERENCES "search_file_index" ON UPDATE CASCADE ON DELETE CASCADE,
 	"keyword" TEXT NOT NULL
 );
+
+CREATE INDEX "index_search_keyword_index_keyword" ON "search_keyword_index"("keyword");
 
 COMMIT TRANSACTION;
