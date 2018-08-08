@@ -5,6 +5,7 @@ BEGIN TRANSACTION;
 -- Major * 1,000,000 + Minor * 1,000 + Revision
 PRAGMA user_version = 3000000;
 
+DROP TABLE IF EXISTS "access_codes";
 DROP TABLE IF EXISTS "search_keyword_index";
 DROP TABLE IF EXISTS "search_file_index";
 DROP TABLE IF EXISTS "content_types";
@@ -78,12 +79,13 @@ CREATE TABLE "logins"(
 	"user_agent" TEXT
 );
 CREATE TABLE "sessions"(
-	"id" TEXT PRIMARY KEY,
+	"id" INTEGER PRIMARY KEY,
+	"session_key" TEXT NOT NULL UNIQUE,
 	"login" INTEGER REFERENCES "logins" ON UPDATE CASCADE ON DELETE CASCADE,
 	"last_used" INTEGER NOT NULL DEFAULT (STRFTIME('%S', 'now'))
 );
 CREATE TABLE "session_data"(
-	"session" TEXT NOT NULL REFERENCES "sessions" ON UPDATE CASCADE ON DELETE CASCADE,
+	"session" INTEGER NOT NULL REFERENCES "sessions" ON UPDATE CASCADE ON DELETE CASCADE,
 	"key" TEXT NOT NULL,
 	"value" BLOB,
 	PRIMARY KEY("session", "key") ON CONFLICT REPLACE
@@ -121,9 +123,8 @@ CREATE TABLE "users_in_groups"(
 -- Mountpoints
 CREATE TABLE "mountpoints"(
 	"id" INTEGER PRIMARY KEY,
-	"name" TEXT NOT NULL UNIQUE,
+	"mountpoint" TEXT NOT NULL UNIQUE,
 	"target" TEXT NOT NULL,
-	"mount_point" TEXT NOT NULL,
 	"writable" INTEGER NOT NULL DEFAULT 0,
 	"enabled" INTEGER NOT NULL DEFAULT 1,
 	"description" TEXT
@@ -164,7 +165,17 @@ CREATE TABLE "search_keyword_index"(
 	"file" INTEGER NOT NULL REFERENCES "search_file_index" ON UPDATE CASCADE ON DELETE CASCADE,
 	"keyword" TEXT NOT NULL
 );
-
 CREATE INDEX "index_search_keyword_index_keyword" ON "search_keyword_index"("keyword");
+
+-- Access codes
+CREATE TABLE "access_codes"(
+	"id" INTEGER PRIMARY KEY,
+	"code" TEXT NOT NULL UNIQUE,
+	"file" TEXT NOT NULL,
+	"enabled" INTEGER NOT NULL DEFAULT 1,
+	"expires" INTEGER,
+	"accesses" INTEGER DEFAULT 0,
+	"description" TEXT
+);
 
 COMMIT TRANSACTION;
