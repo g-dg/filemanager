@@ -150,6 +150,7 @@ CREATE TABLE "content_types"(
 	"extenstion" TEXT PRIMARY KEY ON CONFLICT REPLACE NOT NULL,
 	"content_type" TEXT NOT NULL
 );
+CREATE INDEX "index_content_types_content_type" ON "content_types"("content_type");
 
 -- Search Index
 CREATE TABLE "search_file_index"(
