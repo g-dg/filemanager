@@ -6,15 +6,36 @@ if (!defined('GARNETDG_FILEMANAGER')) {
 	die();
 }
 
+class DatabaseException extends Exception {}
+
 class Database
 {
+	/**
+	 * The minimum and maximum compatable versions
+	 */
 	const VERSION_MIN = 3000000;
 	const VERSION_MAX = 3999999;
 
-	public static $connection = null;
+	/**
+	 * The database connection
+	 */
+	protected static $connection = null;
 
+	/**
+	 * Used for nesting database locks
+	 */
 	protected static $lock_level = 0;
 
+	/**
+	 * The number of rows that were affected in the last query
+	 */
+	protected static $row_count = 0;
+
+	/**
+	 * Connect to the database
+	 * @return bool whether the system is connected to the database or not
+	 * @throws DatabaseException on failure
+	 */
 	public static function connect()
 	{
 		if (is_null(self::$connection)) {
@@ -22,7 +43,7 @@ class Database
 			if (!is_file($db_file) ||
 					!is_readable($db_file) ||
 					!is_writable($db_file)) {
-				throw new \Exception('The database is not set up or is inaccessible');
+				throw new DatabaseException('The database is not set up or is inaccessible');
 			}
 
 			$dsn = 'sqlite:' . $db_file;
@@ -35,36 +56,72 @@ class Database
 
 			$db_version = self::query('PRAGMA user_version;')[0][0];
 
+			// check the database version
+			//TODO: use an upgrader if incompatable
 			if ($db_version < self::VERSION_MIN || $db_version > self::VERSION_MAX) {
-				throw new \Exception('Incompatable database version');
+				throw new DatabaseException('Incompatable database version');
 			}
 
+			// use write-ahead logging for performance reasons
 			self::query('PRAGMA journal_mode=WAL;');
 			self::query('PRAGMA synchronous=NORMAL;');
 
+			// enable foreign key constraints
 			self::query('PRAGMA foreign_keys = ON;');
 		}
+		return true;
 	}
 
+	/**
+	 * Lock the database
+	 * @return bool whether the database is now locked
+	 */
 	public static function lock()
 	{
 		self::connect();
 		if (self::$lock_level++ == 0) {
-			self::$connection->beginTransaction();
+			try {
+				self::$connection->beginTransaction();
+			} catch (\PDOException $e) {
+				throw new DatabaseException($e->getMessage(), $e->getCode(), $e);
+			}
 		}
+		return isLocked();
 	}
+
+	/**
+	 * Unlock the database
+	 * @return bool whether the database is now unlocked (note: because of how lock nesting works, it may still be locked.)
+	 */
 	public static function unlock()
 	{
 		self::connect();
 		if (self::$lock_level-- == 1) {
-			self::$connection->commit();
+			try {
+				self::$connection->commit();
+			} catch (\PDOException $e) {
+				throw new DatabaseException($e->getMessage(), $e->getCode(), $e);
+			}
 		}
-	}
-	public static function isLocked()
-	{
-		return (self::$lock_level <= 0);
+		return isLocked();
 	}
 
+	/**
+	 * Get whether the database is locked
+	 * @return bool whether the database is locked
+	 */
+	public static function isLocked()
+	{
+		return (self::$connection->inTransaction());
+	}
+
+	/**
+	 * Execute a query on the database
+	 * @param sql The SQL statement
+	 * @param params The parameters for the sql statement
+	 * @return array the result set
+	 * @throws DatabaseException on failure
+	 */
 	public static function query($sql, $params = [])
 	{
 		self::connect();
@@ -75,19 +132,29 @@ class Database
 			try {
 				$stmt = self::$connection->prepare($sql);
 				$stmt->execute($params);
+				self::$row_count = $stmt->rowCount();
 				$done_retrying = true;
 			} catch (\PDOException $e) {
 				// keep retrying if locked
 				if (substr_count($e->getMessage(), 'database is locked') == 0) {
-					throw new \Exception($e->getMessage(), $e->getCode(), $e);
+					throw new DatabaseException($e->getMessage(), $e->getCode(), $e);
 				} else {
 					if (time() - $start_time > 60) {
-						throw new \Exception($e->getMessage(), $e->getCode(), $e);
+						throw new DatabaseException($e->getMessage(), $e->getCode(), $e);
 					}
 					usleep(mt_rand(1000, 10000));
 				}
 			}
 		}
 		return $stmt->fetchAll();
+	}
+
+	/**
+	 * Get the number of affected rows for the last query
+	 * @return int The number of affected rows
+	 */
+	public static function getAffectedRows()
+	{
+		return self::$row_count;
 	}
 }
