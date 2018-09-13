@@ -33,7 +33,6 @@ class Database
 
 	/**
 	 * Connect to the database
-	 * @return bool whether the system is connected to the database or not
 	 * @throws DatabaseException on failure
 	 */
 	public static function connect()
@@ -69,12 +68,10 @@ class Database
 			// enable foreign key constraints
 			self::query('PRAGMA foreign_keys = ON;');
 		}
-		return true;
 	}
 
 	/**
 	 * Lock the database
-	 * @return bool whether the database is now locked
 	 */
 	public static function lock()
 	{
@@ -86,12 +83,10 @@ class Database
 				throw new DatabaseException($e->getMessage(), $e->getCode(), $e);
 			}
 		}
-		return isLocked();
 	}
 
 	/**
 	 * Unlock the database
-	 * @return bool whether the database is now unlocked (note: because of how lock nesting works, it may still be locked.)
 	 */
 	public static function unlock()
 	{
@@ -103,7 +98,6 @@ class Database
 				throw new DatabaseException($e->getMessage(), $e->getCode(), $e);
 			}
 		}
-		return isLocked();
 	}
 
 	/**
