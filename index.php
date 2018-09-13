@@ -36,6 +36,9 @@ define('GARNETDG_FILEMANAGER_COPYRIGHT_HTML', 'Copyright &copy; 2017-2018 Garnet
 // Prevent the user from cancelling the request
 ignore_user_abort(true);
 
+// define the exeption for the file manager
+class Exception extends \Exception {}
+
 // Load the config file
 require_once('config.php');
 
