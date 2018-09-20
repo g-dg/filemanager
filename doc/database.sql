@@ -148,17 +148,16 @@ CREATE TABLE "history"(
 
 -- Extensions to content-types
 CREATE TABLE "extensions_to_content_types"(
-	"extenstion" TEXT PRIMARY KEY ON CONFLICT REPLACE NOT NULL,
-	"content_type" TEXT NOT NULL
+	"extension" TEXT PRIMARY KEY ON CONFLICT REPLACE NOT NULL,
+	"type" TEXT NOT NULL,
+	"subtype" TEXT NOT NULL
 );
---CREATE INDEX "index_extensions_to_content_types_content_type" ON "extensions_to_content_types"("content_type");
 
 --  Content-types to extensions
 CREATE TABLE "content_types_to_extensions"(
 	"content_type" TEXT PRIMARY KEY ON CONFLICT REPLACE NOT NULL,
-	"extenstion" TEXT NOT NULL
+	"extension" TEXT NOT NULL
 );
---CREATE INDEX "index_content_types_to_extensions_content_type" ON "content_types_to_extensions"("extension");
 
 -- Search Index
 CREATE TABLE "search_file_index"(
