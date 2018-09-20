@@ -8,13 +8,14 @@ PRAGMA user_version = 3000000;
 DROP TABLE IF EXISTS "access_codes";
 DROP TABLE IF EXISTS "search_keyword_index";
 DROP TABLE IF EXISTS "search_file_index";
-DROP TABLE IF EXISTS "content_types";
+DROP TABLE IF EXISTS "content_types_to_extensions";
+DROP TABLE IF EXISTS "extensions_to_content_types";
+DROP TABLE IF EXISTS "history";
 DROP TABLE IF EXISTS "bookmarks";
 DROP TABLE IF EXISTS "mountpoints_in_groups";
 DROP TABLE IF EXISTS "mountpoints";
 DROP TABLE IF EXISTS "users_in_groups";
 DROP TABLE IF EXISTS "groups";
-DROP TABLE IF EXISTS "file_accesses";
 DROP TABLE IF EXISTS "login_persistence";
 DROP TABLE IF EXISTS "session_data";
 DROP TABLE IF EXISTS "sessions";
@@ -99,14 +100,6 @@ CREATE TABLE "login_persistence"(
 	"expires" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now') + 31536000)
 );
 
--- File Accesses
-CREATE TABLE "file_accesses"(
-	"id" INTEGER PRIMARY KEY,
-	"session" TEXT NOT NULL REFERENCES "sessions" ON UPDATE CASCADE ON DELETE CASCADE,
-	"path" TEXT NOT NULL,
-	"timestamp" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
-);
-
 -- Groups
 CREATE TABLE "groups"(
 	"id" INTEGER PRIMARY KEY,
@@ -145,12 +138,27 @@ CREATE TABLE "bookmarks"(
 	"sort_order" INTEGER NOT NULL
 );
 
--- Content-types
-CREATE TABLE "content_types"(
+-- Access history
+CREATE TABLE "history"(
+	"id" INTEGER PRIMARY KEY,
+	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
+	"path" TEXT NOT NULL,
+	"timestamp" INEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
+);
+
+-- Extensions to content-types
+CREATE TABLE "extensions_to_content_types"(
 	"extenstion" TEXT PRIMARY KEY ON CONFLICT REPLACE NOT NULL,
 	"content_type" TEXT NOT NULL
 );
-CREATE INDEX "index_content_types_content_type" ON "content_types"("content_type");
+--CREATE INDEX "index_extensions_to_content_types_content_type" ON "extensions_to_content_types"("content_type");
+
+--  Content-types to extensions
+CREATE TABLE "content_types_to_extensions"(
+	"content_type" TEXT PRIMARY KEY ON CONFLICT REPLACE NOT NULL,
+	"extenstion" TEXT NOT NULL
+);
+--CREATE INDEX "index_content_types_to_extensions_content_type" ON "content_types_to_extensions"("extension");
 
 -- Search Index
 CREATE TABLE "search_file_index"(
