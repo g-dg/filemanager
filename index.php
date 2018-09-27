@@ -14,13 +14,12 @@ define('GARNETDG_FILEMANAGER_VERSION_PRERELEASE', 'alpha');
 define('GARNETDG_FILEMANAGER_VERSION_PRERELEASE_NUMBER', null);
 
 // Generate version string
-define(
-	'GARNETDG_FILEMANAGER_VERSION',
-	GARNETDG_FILEMANAGER_VERSION_MAJOR . '.' . GARNETDG_FILEMANAGER_VERSION_MINOR . '.' . GARNETDG_FILEMANAGER_VERSION_PATCH . (
-		!is_null(GARNETDG_FILEMANAGER_VERSION_PRERELEASE) ?
-		'-' . GARNETDG_FILEMANAGER_VERSION_PRERELEASE . (
-			!is_null(GARNETDG_FILEMANAGER_VERSION_PRERELEASE_NUMBER) ?
-			'.' . GARNETDG_FILEMANAGER_VERSION_PRERELEASE_NUMBER :
+define('GARNETDG_FILEMANAGER_VERSION',
+	GARNETDG_FILEMANAGER_VERSION_MAJOR . '.' . GARNETDG_FILEMANAGER_VERSION_MINOR . '.' . GARNETDG_FILEMANAGER_VERSION_PATCH . ( // basic x.y.z
+		!is_null(GARNETDG_FILEMANAGER_VERSION_PRERELEASE) ? // if there is a prerelease type
+		'-' . GARNETDG_FILEMANAGER_VERSION_PRERELEASE . ( // append the prerelease type.
+			!is_null(GARNETDG_FILEMANAGER_VERSION_PRERELEASE_NUMBER) ? // if there is a prerelease number,
+			'.' . GARNETDG_FILEMANAGER_VERSION_PRERELEASE_NUMBER : // append the prerelease number.
 			'') :
 		''
 	)
@@ -36,7 +35,7 @@ define('GARNETDG_FILEMANAGER_COPYRIGHT_HTML', 'Copyright &copy; 2017-2018 Garnet
 // Prevent the user from cancelling the request
 ignore_user_abort(true);
 
-// define the exeption for the file manager
+// define exceptions in this namespace
 class Exception extends \Exception {}
 
 // Load the config file
@@ -52,11 +51,17 @@ if (defined('GARNETDG_FILEMANAGER_DEBUG_ENABLE') && GARNETDG_FILEMANAGER_DEBUG_E
 require_once('server/loader.php');
 
 // Execute the loader
-Loader::loadDirectory('server');
-Loader::loadDirectory('client');
+loader_load('server');
+loader_load('client');
 
 // Run the inits
-Loader::executeInits();
+loader_execute_inits();
+
+// Connect to the database
+database_connect();
 
 // Start the session
-Session::start();
+session_start();
+
+// Execute the requested page
+page_execute();
