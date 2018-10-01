@@ -1,0 +1,37 @@
+<?php
+namespace GarnetDG\FileManager;
+
+if (!defined('GARNETDG_FILEMANAGER')) {
+	http_response_code(403);
+	exit();
+}
+
+/**
+ * The SQLite3 database file.
+ * Must be readable and writable and must be in a readable and writable directory
+ * For security, this should be secured with a .htaccess file or not accessible from your www-root.
+ */
+define('GARNETDG_FILEMANAGER_DATABASE_FILE', 'database.sqlite3');
+
+/**
+ * The administrator username and password (used only for initial setup)
+ * *** CHANGE THIS FOR SECURITY PURPOSES (or change the password before bringing online) ***
+ * You should also remove or change this after setup.
+ */
+define('GARNETDG_FILEMANAGER_ADMIN_DEFAULT_USERNAME', 'administrator');
+define('GARNETDG_FILEMANAGER_ADMIN_DEFAULT_PASSWORD', 'password');
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//  The following configuration options should not need changing
+//  and are for advanced users.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Set to true to run in debug mode.
+ * Note: to prevent potential leakage of sensitive data, this should not be used in a production environment.
+ */
+define('GARNETDG_FILEMANAGER_DEBUG_ENABLE', false);
