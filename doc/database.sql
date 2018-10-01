@@ -5,7 +5,6 @@ BEGIN TRANSACTION;
 -- Major * 1,000,000 + Minor * 1,000 + Revision
 PRAGMA user_version = 3000000;
 
-DROP TABLE IF EXISTS "access_codes";
 DROP TABLE IF EXISTS "search_keyword_index";
 DROP TABLE IF EXISTS "search_file_index";
 DROP TABLE IF EXISTS "content_types_to_extensions";
@@ -175,15 +174,5 @@ CREATE TABLE "search_keyword_index"(
 );
 CREATE INDEX "index_search_keyword_index_keyword" ON "search_keyword_index"("keyword");
 
--- Access codes
-CREATE TABLE "access_codes"(
-	"id" INTEGER PRIMARY KEY,
-	"code" TEXT NOT NULL UNIQUE,
-	"file" TEXT NOT NULL,
-	"enabled" INTEGER NOT NULL DEFAULT 1,
-	"expires" INTEGER,
-	"accesses" INTEGER DEFAULT 0,
-	"description" TEXT
-);
 
 COMMIT TRANSACTION;
