@@ -142,7 +142,7 @@ CREATE TABLE "history"(
 	"id" INTEGER PRIMARY KEY,
 	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
 	"path" TEXT NOT NULL,
-	"timestamp" INEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
+	"timestamp" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
 );
 
 -- Extensions to content-types
