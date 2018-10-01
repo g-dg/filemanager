@@ -29,12 +29,19 @@ DROP TABLE IF EXISTS "users";
 CREATE TABLE "users"(
 	"id" INTEGER PRIMARY KEY,
 	"name" TEXT NOT NULL UNIQUE,
-	"password" BLOB NOT NULL,
+	"full_name" TEXT NOT NULL,
+	"password" TEXT NOT NULL,
 	"administrator" INTEGER NOT NULL DEFAULT 0,
 	"read_only" INTEGER NOT NULL DEFAULT 0,
 	"enabled" INTEGER NOT NULL DEFAULT 1,
-	"description" TEXT
+	"description" TEXT,
+	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
+	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
 );
+CREATE TRIGGER "trigger_users_update_modified" AFTER UPDATE OF "name", "full_name", "password", "administrator", "read_only", "enabled", "description" ON "users" FOR EACH ROW
+BEGIN
+	UPDATE "users" SET "modified" = STRFTIME('%s', 'now') WHERE rowid = NEW.rowid;
+END;
 
 -- Log
 CREATE TABLE "log"(
@@ -44,7 +51,7 @@ CREATE TABLE "log"(
 	"timestamp" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
 	"user" INTEGER REFERENCES "users" ON UPDATE CASCADE ON DELETE SET NULL,
 	"message" TEXT,
-	"details" BLOB,
+	"details" TEXT,
 	"client_addr" TEXT,
 	"method" TEXT,
 	"path" TEXT,
@@ -52,24 +59,36 @@ CREATE TABLE "log"(
 	"user_agent" TEXT
 );
 
--- Settings
+-- Global Settings
 CREATE TABLE "global_settings"(
 	"key" TEXT PRIMARY KEY ON CONFLICT REPLACE NOT NULL,
-	"default" BLOB,
-	"value" BLOB
+	"default" TEXT,
+	"value" TEXT,
+	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
 );
+CREATE TRIGGER "trigger_global_settings_update_modified" AFTER UPDATE OF "value" ON "global_settings" FOR EACH ROW
+BEGIN
+	UPDATE "global_settings" SET "modified" = STRFTIME('%s', 'now') WHERE rowid = NEW.rowid;
+END;
+
+-- User Settings
 CREATE TABLE "user_setting_defs"(
 	"key" TEXT PRIMARY KEY,
-	"default" BLOB
+	"default" TEXT
 );
 CREATE TABLE "user_settings"(
 	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
 	"key" TEXT NOT NULL REFERENCES "user_setting_defs" ON UPDATE CASCADE ON DELETE CASCADE,
-	"value" BLOB,
+	"value" TEXT,
+	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
 	PRIMARY KEY("user", "key") ON CONFLICT REPLACE
 );
+CREATE TRIGGER "trigger_user_settings_update_modified" AFTER UPDATE OF "value" ON "user_settings" FOR EACH ROW
+BEGIN
+	UPDATE "user_settings" SET "modified" = STRFTIME('%s', 'now') WHERE rowid = NEW.rowid;
+END;
 
--- Logins and Sessions
+-- Logins
 CREATE TABLE "logins"(
 	"id" INTEGER PRIMARY KEY,
 	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
@@ -78,24 +97,38 @@ CREATE TABLE "logins"(
 	"client_addr" TEXT,
 	"user_agent" TEXT
 );
+
+-- Sessions
 CREATE TABLE "sessions"(
-	"id" INTEGER PRIMARY KEY,
-	"session_key" TEXT NOT NULL UNIQUE,
+	"id" TEXT PRIMARY KEY,
 	"login" INTEGER REFERENCES "logins" ON UPDATE CASCADE ON DELETE CASCADE,
-	"last_used" INTEGER NOT NULL DEFAULT (STRFTIME('%S', 'now'))
+	"last_used" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
 );
 CREATE TABLE "session_data"(
-	"session" INTEGER NOT NULL REFERENCES "sessions" ON UPDATE CASCADE ON DELETE CASCADE,
+	"session" TEXT NOT NULL REFERENCES "sessions" ON UPDATE CASCADE ON DELETE CASCADE,
 	"key" TEXT NOT NULL,
-	"value" BLOB,
+	"value" TEXT,
 	PRIMARY KEY("session", "key") ON CONFLICT REPLACE
 );
+CREATE TRIGGER "trigger_session_data_insert_last_used" AFTER INSERT ON "session_data" FOR EACH ROW
+BEGIN
+	UPDATE "sessions" SET "last_used" = STRFTIME('%s', 'now') WHERE "id" = NEW."session" AND "last_used" < STRFTIME('%s', 'now');
+END;
+CREATE TRIGGER "trigger_session_data_update_last_used" AFTER UPDATE ON "session_data" FOR EACH ROW
+BEGIN
+	UPDATE "sessions" SET "last_used" = STRFTIME('%s', 'now') WHERE "id" = NEW."session" AND "last_used" < STRFTIME('%s', 'now');
+END;
+CREATE TRIGGER "trigger_session_data_delete_last_used" BEFORE DELETE ON "session_data" FOR EACH ROW
+BEGIN
+	UPDATE "sessions" SET "last_used" = STRFTIME('%s', 'now') WHERE "id" = OLD."session" AND "last_used" < STRFTIME('%s', 'now');
+END;
 
 -- Login Persistence
 CREATE TABLE "login_persistence"(
 	"key" TEXT PRIMARY KEY,
 	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
-	"secret" BLOB NOT NULL,
+	"secret" TEXT NOT NULL,
+	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
 	"expires" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now') + 31536000)
 );
 
@@ -104,8 +137,14 @@ CREATE TABLE "groups"(
 	"id" INTEGER PRIMARY KEY,
 	"name" TEXT NOT NULL UNIQUE,
 	"enabled" INTEGER NOT NULL DEFAULT 1,
-	"description" TEXT
+	"description" TEXT,
+	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
+	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
 );
+CREATE TRIGGER "trigger_groups_update_modified" AFTER UPDATE OF "name", "enabled", "description" ON "groups" FOR EACH ROW
+BEGIN
+	UPDATE "groups" SET "modified" = STRFTIME('%s', 'now') WHERE rowid = NEW.rowid;
+END;
 CREATE TABLE "users_in_groups"(
 	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
 	"group" INTEGER NOT NULL REFERENCES "groups" ON UPDATE CASCADE ON DELETE CASCADE,
@@ -115,12 +154,19 @@ CREATE TABLE "users_in_groups"(
 -- Mountpoints
 CREATE TABLE "mountpoints"(
 	"id" INTEGER PRIMARY KEY,
+	"name" TEXT NOT NULL UNIQUE,
 	"mountpoint" TEXT NOT NULL UNIQUE,
 	"target" TEXT NOT NULL,
 	"writable" INTEGER NOT NULL DEFAULT 0,
 	"enabled" INTEGER NOT NULL DEFAULT 1,
-	"description" TEXT
+	"description" TEXT,
+	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
+	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
 );
+CREATE TRIGGER "trigger_mountpoints_update_modified" AFTER UPDATE OF "name", "mountpoint", "target", "writable", "enabled", "description" ON "mountpoints" FOR EACH ROW
+BEGIN
+	UPDATE "mountpoints" SET "modified" = STRFTIME('%s', 'now') WHERE rowid = NEW.rowid;
+END;
 CREATE TABLE "mountpoints_in_groups"(
 	"mountpoint" INTEGER NOT NULL REFERENCES "mountpoints" ON UPDATE CASCADE ON DELETE CASCADE,
 	"group" INTEGER NOT NULL REFERENCES "groups" ON UPDATE CASCADE ON DELETE CASCADE,
@@ -134,8 +180,14 @@ CREATE TABLE "bookmarks"(
 	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
 	"name" TEXT NOT NULL UNIQUE ON CONFLICT REPLACE,
 	"path" TEXT NOT NULL,
-	"sort_order" INTEGER NOT NULL
+	"sort_order" INTEGER NOT NULL,
+	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
+	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
 );
+CREATE TRIGGER "trigger_bookmarks_update_modified" AFTER UPDATE OF "name", "path" ON "bookmarks" FOR EACH ROW
+BEGIN
+	UPDATE "bookmarks" SET "modified" = STRFTIME('%s', 'now') WHERE rowid = NEW.rowid;
+END;
 
 -- Access history
 CREATE TABLE "history"(
