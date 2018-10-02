@@ -5,6 +5,9 @@ BEGIN TRANSACTION;
 -- Major * 1,000,000 + Minor * 1,000 + Revision
 PRAGMA user_version = 3000000;
 
+DROP VIEW IF EXISTS "view_users_groups_mountpoints_enabled";
+DROP VIEW IF EXISTS "view_users_groups_mountpoints";
+
 DROP TABLE IF EXISTS "search_keyword_index";
 DROP TABLE IF EXISTS "search_file_index";
 DROP TABLE IF EXISTS "content_types_to_extensions";
