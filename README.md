@@ -8,6 +8,7 @@ This is a web-based file manager implemented in PHP that allows downloading, upl
 Requirements
 ============
 * PHP >= 5.6
+	* Developed with PHP 7.0
 	* PHP 5.6 will also be tested
 * PDO SQLite3 >= 3.8.0
 	* Developed with SQLite3 3.16.2
