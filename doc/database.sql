@@ -39,7 +39,7 @@ CREATE TABLE "users"(
 	"enabled" INTEGER NOT NULL DEFAULT 1,
 	"description" TEXT,
 	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
-	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
+	"modified" INTEGER
 );
 CREATE TRIGGER "trigger_users_update_modified"
 AFTER UPDATE OF "name", "full_name", "password", "administrator", "read_only", "enabled", "description"
@@ -70,7 +70,7 @@ CREATE TABLE "global_settings"(
 	"key" TEXT PRIMARY KEY ON CONFLICT REPLACE NOT NULL,
 	"default" TEXT,
 	"value" TEXT,
-	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
+	"modified" INTEGER
 );
 CREATE TRIGGER "trigger_global_settings_update_modified"
 AFTER UPDATE OF "value"
@@ -88,7 +88,7 @@ CREATE TABLE "user_settings"(
 	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
 	"key" TEXT NOT NULL REFERENCES "user_setting_defs" ON UPDATE CASCADE ON DELETE CASCADE,
 	"value" TEXT,
-	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
+	"modified" INTEGER,
 	PRIMARY KEY("user", "key") ON CONFLICT REPLACE
 );
 CREATE TRIGGER "trigger_user_settings_update_modified"
@@ -151,7 +151,7 @@ CREATE TABLE "groups"(
 	"enabled" INTEGER NOT NULL DEFAULT 1,
 	"description" TEXT,
 	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
-	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
+	"modified" INTEGER
 );
 CREATE TRIGGER "trigger_groups_update_modified"
 AFTER UPDATE OF "name", "enabled", "description"
@@ -159,6 +159,7 @@ ON "groups" FOR EACH ROW
 BEGIN
 	UPDATE "groups" SET "modified" = STRFTIME('%s', 'now') WHERE rowid = NEW.rowid;
 END;
+
 CREATE TABLE "users_in_groups"(
 	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
 	"group" INTEGER NOT NULL REFERENCES "groups" ON UPDATE CASCADE ON DELETE CASCADE,
@@ -175,7 +176,7 @@ CREATE TABLE "mountpoints"(
 	"enabled" INTEGER NOT NULL DEFAULT 1,
 	"description" TEXT,
 	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
-	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
+	"modified" INTEGER
 );
 CREATE TRIGGER "trigger_mountpoints_update_modified"
 AFTER UPDATE OF "name", "mountpoint", "target", "writable", "enabled", "description"
@@ -198,7 +199,7 @@ CREATE TABLE "bookmarks"(
 	"path" TEXT NOT NULL,
 	"sort_order" INTEGER NOT NULL,
 	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
-	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
+	"modified" INTEGER
 );
 CREATE TRIGGER "trigger_bookmarks_update_modified"
 AFTER UPDATE OF "name", "path"
@@ -229,12 +230,18 @@ CREATE TABLE "content_types_to_extensions"(
 );
 
 -- Search Index
+/*
+File types:
+0: file
+1: directory
+2: other/unknown
+*/
 CREATE TABLE "search_file_index"(
 	"id" INTEGER PRIMARY KEY,
 	"directory" TEXT NOT NULL,
 	"filename" TEXT NOT NULL,
-	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
-	"type" INTEGER NOT NULL DEFAULT 1,
+	"mtime" INTEGER NOT NULL,
+	"type" INTEGER NOT NULL DEFAULT 0,
 	"size" INTEGER NOT NULL DEFAULT 0,
 	"last_updated" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
 );
