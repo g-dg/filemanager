@@ -19,7 +19,8 @@ $loader_registered_inits = [];
  * @return bool whether everything was loaded correctly
  * @throws LoaderException when the loader cannot load something
  */
-function loader_load($directory) {
+function loader_load($directory)
+{
 	if (is_dir($directory) && $dh = opendir($directory)) {
 		while (($file = readdir($dh)) !== false) {
 			// check if ends in '.php' and doesn't start with a dot or underscore
@@ -40,7 +41,8 @@ function loader_load($directory) {
 /**
  * Executes the inits registered with registerInit()
  */
-function loader_execute_inits() {
+function loader_execute_inits()
+{
 	krsort($loader_registered_inits);
 
 	foreach ($loader_registered_inits as $priority_level) {
@@ -53,7 +55,8 @@ function loader_execute_inits() {
 /**
  * Clears the registered inits
  */
-function loader_clear_inits() {
+function loader_clear_inits()
+{
 	$loader_registered_inits = [];
 }
 
