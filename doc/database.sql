@@ -60,6 +60,7 @@ CREATE TABLE "log"(
 	"client_addr" TEXT,
 	"method" TEXT,
 	"path" TEXT,
+	"host" TEXT,
 	"referrer" TEXT,
 	"user_agent" TEXT
 );
