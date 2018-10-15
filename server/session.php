@@ -40,7 +40,7 @@ function session_new($destroy_previous = false)
  */
 function session_started()
 {
-	return (!is_null(self::$session_id));
+	return (!is_null($session_id));
 }
 
 /**
@@ -49,7 +49,7 @@ function session_started()
  */
 function session_get_id()
 {
-	return self::$session_id;
+	return $session_id;
 }
 
 /**
