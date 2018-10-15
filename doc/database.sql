@@ -55,7 +55,7 @@ CREATE TABLE "log"(
 	"type" TEXT,
 	"timestamp" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
 	"user" INTEGER REFERENCES "users" ON UPDATE CASCADE ON DELETE SET NULL,
-	"message" TEXT,
+	"message" TEXT NOT NULL,
 	"details" TEXT,
 	"client_addr" TEXT,
 	"method" TEXT,
