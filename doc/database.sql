@@ -22,9 +22,8 @@ DROP TABLE IF EXISTS "login_persistence";
 DROP TABLE IF EXISTS "session_data";
 DROP TABLE IF EXISTS "sessions";
 DROP TABLE IF EXISTS "logins";
-DROP TABLE IF EXISTS "user_settings";
-DROP TABLE IF EXISTS "user_setting_defs";
-DROP TABLE IF EXISTS "global_settings";
+DROP TABLE IF EXISTS "settings";
+DROP TABLE IF EXISTS "setting_defs";
 DROP TABLE IF EXISTS "log";
 DROP TABLE IF EXISTS "users";
 
@@ -65,37 +64,31 @@ CREATE TABLE "log"(
 	"user_agent" TEXT
 );
 
--- Global Settings
-CREATE TABLE "global_settings"(
-	"key" TEXT PRIMARY KEY ON CONFLICT REPLACE NOT NULL,
+-- Settings
+CREATE TABLE "setting_defs"(
+	"key" TEXT PRIMARY KEY,
 	"default" TEXT,
-	"value" TEXT,
+	"system_value" TEXT,
 	"modified" INTEGER
 );
-CREATE TRIGGER "trigger_global_settings_update_modified"
-AFTER UPDATE OF "value"
-ON "global_settings" FOR EACH ROW
+CREATE TRIGGER "trigger_setting_defs_update_modified"
+AFTER UPDATE OF "system_value"
+ON "setting_defs" FOR EACH ROW
 BEGIN
-	UPDATE "global_settings" SET "modified" = STRFTIME('%s', 'now') WHERE rowid = NEW.rowid;
+	UPDATE "setting_defs" SET "modified" = STRFTIME('%s', 'now') WHERE rowid = NEW.rowid;
 END;
-
--- User Settings
-CREATE TABLE "user_setting_defs"(
-	"key" TEXT PRIMARY KEY,
-	"default" TEXT
-);
-CREATE TABLE "user_settings"(
+CREATE TABLE "settings"(
 	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
-	"key" TEXT NOT NULL REFERENCES "user_setting_defs" ON UPDATE CASCADE ON DELETE CASCADE,
-	"value" TEXT,
+	"key" TEXT NOT NULL REFERENCES "setting_defs" ON UPDATE CASCADE ON DELETE CASCADE,
+	"user_value" TEXT,
 	"modified" INTEGER,
 	PRIMARY KEY("user", "key") ON CONFLICT REPLACE
 );
-CREATE TRIGGER "trigger_user_settings_update_modified"
-AFTER UPDATE OF "value"
-ON "user_settings" FOR EACH ROW
+CREATE TRIGGER "trigger_settings_update_modified"
+AFTER UPDATE OF "user_value"
+ON "settings" FOR EACH ROW
 BEGIN
-	UPDATE "user_settings" SET "modified" = STRFTIME('%s', 'now') WHERE rowid = NEW.rowid;
+	UPDATE "settings" SET "modified" = STRFTIME('%s', 'now') WHERE rowid = NEW.rowid;
 END;
 
 -- Logins
