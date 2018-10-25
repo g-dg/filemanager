@@ -15,7 +15,7 @@ const LOG_NOTICE = 5;
 const LOG_INFO = 6;
 const LOG_DEBUG = 7;
 
-function log($level, $message, $type = null, $details = null) {
+function log($level, $message, $type, $details = null) {
 	database_query('
 	INSERT INTO "log"(
 		"level",
