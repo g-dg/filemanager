@@ -14,3 +14,16 @@ When accessing settings, there is a level parameter which may be used to specify
  - SETTING_LEVEL_SYSTEM selects the system value (it would select the default value if not set, but with the way the database is set up, that will not happen.)
  - SETTING_LEVEL_USER selects a user's preference. When this level is used, a user must be specified, or else the current user will be used. If there is no current user, it will fall back to the system value and log a warning.
 
+Settings
+--------
+
+ - session.gc.probability: 1
+ - session.gc.divisor: 1000
+ - session.gc.age.max: 31536000
+ - session.cookie.name: "sessid"
+ - session.id.length: 255
+ - session.id.chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+ - session.age.max: 2592000
+ - session.csrf_token.length: 255
+ - session.csrf_token.chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+ 
