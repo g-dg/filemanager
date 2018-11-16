@@ -23,6 +23,8 @@ $session_id = null;
  */
 function session_start($sessid = null, $set_cookie = true, $regenerate_on_failure = false)
 {
+	global $session_id;
+
 	// don't run if the session is already started
 	if (!is_null($session_id)) {
 		// check whether to do a garbage-collect
@@ -89,6 +91,8 @@ function session_start($sessid = null, $set_cookie = true, $regenerate_on_failur
  */
 function session_new($destroy_previous = false, $set_cookie = true)
 {
+	global $session_id;
+
 	if ($destroy_previous) {
 		session_destroy();
 	}
@@ -112,6 +116,8 @@ function session_new($destroy_previous = false, $set_cookie = true)
  */
 function session_started()
 {
+	global $session_id;
+
 	return (!is_null($session_id));
 }
 
@@ -121,6 +127,8 @@ function session_started()
  */
 function session_get_id()
 {
+	global $session_id;
+
 	return $session_id;
 }
 
@@ -131,6 +139,8 @@ function session_get_id()
  */
 function session_set($key, $value)
 {
+	global $session_id;
+
 	if (!session_started()) {
 		log(LOG_ERR, 'Could not set value of "' . $key . '" (session not started).', 'session');
 		throw new SessionNotStartedException('Can not set value of "' . $key . '" (session not started).');
@@ -151,6 +161,8 @@ function session_set($key, $value)
  */
 function session_get($key, $default = null)
 {
+	global $session_id;
+
 	if (!session_started()) {
 		log(LOG_ERR, 'Could not get value of "' . $key . '" (session not started).', 'session');
 		throw new SessionNotStartedException('Can not get value of "' . $key . '" (session not started).');
@@ -176,6 +188,8 @@ function session_get($key, $default = null)
  */
 function session_isset($key)
 {
+	global $session_id;
+
 	if (!session_started()) {
 		log(LOG_ERR, 'Could not check if "' . $key . '" is set (session not started).', 'session');
 		throw new SessionNotStartedException('Could not check if "' . $key . '" is set (session not started).');
@@ -194,6 +208,8 @@ function session_isset($key)
  */
 function session_unset($key)
 {
+	global $session_id;
+
 	if (!session_started()) {
 		log(LOG_ERR, 'Could not unset "' . $key . '" (session not started).', 'session');
 		throw new SessionNotStartedException('Could not unset "' . $key . '" (session not started).');
@@ -220,6 +236,8 @@ function session_gc()
  */
 function session_destroy()
 {
+	global $session_id;
+	
 	if (!session_started()) {
 		//log(LOG_ERR, 'Could not destroy session (session not started).', 'session');
 		//throw new SessionNotStartedException('Could not destroy session (session not started).');

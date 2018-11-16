@@ -43,6 +43,8 @@ function loader_load($directory)
  */
 function loader_execute_inits()
 {
+	global $loader_registered_inits;
+
 	krsort($loader_registered_inits);
 
 	foreach ($loader_registered_inits as $priority_level) {
@@ -57,6 +59,8 @@ function loader_execute_inits()
  */
 function loader_clear_inits()
 {
+	global $loader_registered_inits;
+
 	$loader_registered_inits = [];
 }
 
@@ -67,5 +71,7 @@ function loader_clear_inits()
  */
 function loader_register_init($function, $priority = 0)
 {
+	global $loader_registered_inits;
+
 	$loader_registered_inits[$priority][] = $function;
 }

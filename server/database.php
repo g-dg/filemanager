@@ -35,6 +35,8 @@ $database_affected_row_count = 0;
  */
 function database_connect()
 {
+	global $database_connection;
+
 	if (is_null($database_connection)) {
 		$db_file = GARNETDG_FILEMANAGER_DATABASE_FILE;
 		if (!is_file($db_file) ||
@@ -73,6 +75,8 @@ function database_connect()
  */
 function database_lock()
 {
+	global $database_lock_level, $database_connection;
+
 	database_connect();
 	if ($database_lock_level++ == 0) {
 		try {
@@ -88,6 +92,8 @@ function database_lock()
  */
 function database_unlock()
 {
+	global $database_lock_level, $database_connection;
+
 	database_connect();
 	if ($database_lock_level-- == 1) {
 		try {
@@ -104,6 +110,8 @@ function database_unlock()
  */
 function database_locked()
 {
+	global $database_connection;
+
 	return ($database_connection->inTransaction());
 }
 
@@ -116,6 +124,8 @@ function database_locked()
  */
 function database_query($sql, $params = [])
 {
+	global $database_connection, $database_affected_row_count;
+
 	database_connect();
 
 	$done_retrying = false;
@@ -147,5 +157,7 @@ function database_query($sql, $params = [])
  */
 function database_get_affected_rows()
 {
+	global $database_affected_row_count;
+
 	return $database_affected_row_count;
 }
