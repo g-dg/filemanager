@@ -38,22 +38,27 @@ function database_connect()
 	global $database_connection;
 
 	if (is_null($database_connection)) {
-		$db_file = GARNETDG_FILEMANAGER_DATABASE_FILE;
-		if (!is_file($db_file) ||
-				!is_readable($db_file) ||
-				!is_writable($db_file)) {
-			throw new DatabaseException('The database is not set up or is inaccessible');
+		// check if file exists and is readable
+		if (!is_file(GARNETDG_FILEMANAGER_DATABASE_FILE) ||
+				!is_readable(GARNETDG_FILEMANAGER_DATABASE_FILE) ||
+				!is_writable(GARNETDG_FILEMANAGER_DATABASE_FILE) ||
+				!is_readable(dirname(GARNETDG_FILEMANAGER_DATABASE_FILE)) ||
+				!is_writable(dirname(GARNETDG_FILEMANAGER_DATABASE_FILE))) {
+			throw new DatabaseException('The database is not set up or is inaccessible (must be readable and writable and in a readable and writable directory)');
 		}
 
-		$dsn = 'sqlite:' . $db_file;
-
-		$database_connection = new \PDO($dsn);
+		$database_connection = new \PDO('sqlite:' . GARNETDG_FILEMANAGER_DATABASE_FILE);
 
 		$database_connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
 		$database_connection->setAttribute(\PDO::ATTR_TIMEOUT, 60);
 
-		$db_version = database_query('PRAGMA user_version;')[0][0];
+		$db_version = (int)database_query('PRAGMA user_version;')[0][0];
+
+		if ($db_version === 0) {
+			// run setup
+			require('setup/setup.php');
+		}
 
 		// check the database version
 		//TODO: use an upgrader if incompatable
