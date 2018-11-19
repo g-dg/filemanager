@@ -5,6 +5,7 @@ BEGIN TRANSACTION;
 -- Major * 1,000,000 + Minor * 1,000 + Revision
 PRAGMA user_version = 3000000;
 
+DROP VIEW IF EXISTS "view_settings";
 DROP VIEW IF EXISTS "view_users_groups_mountpoints_enabled";
 DROP VIEW IF EXISTS "view_users_groups_mountpoints";
 
@@ -38,13 +39,20 @@ CREATE TABLE "users"(
 	"enabled" INTEGER NOT NULL DEFAULT 1,
 	"description" TEXT,
 	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
-	"modified" INTEGER
+	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
+	"password_changed" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
 );
 CREATE TRIGGER "trigger_users_update_modified"
-AFTER UPDATE OF "name", "full_name", "password", "administrator", "read_only", "enabled", "description"
+AFTER UPDATE OF "name", "full_name", "administrator", "read_only", "enabled", "description"
 ON "users" FOR EACH ROW
 BEGIN
 	UPDATE "users" SET "modified" = STRFTIME('%s', 'now') WHERE rowid = NEW.rowid;
+END;
+CREATE TRIGGER "trigger_users_update_password_changed"
+AFTER UPDATE OF "password"
+ON "users" FOR EACH ROW
+BEGIN
+	UPDATE "users" SET "password_changed" = STRFTIME('%s', 'now') WHERE rowid = NEW.rowid;
 END;
 
 -- Log
@@ -69,7 +77,7 @@ CREATE TABLE "setting_defs"(
 	"key" TEXT PRIMARY KEY,
 	"default" TEXT,
 	"system_value" TEXT,
-	"modified" INTEGER
+	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
 );
 CREATE TRIGGER "trigger_setting_defs_update_modified"
 AFTER UPDATE OF "system_value"
@@ -81,7 +89,7 @@ CREATE TABLE "settings"(
 	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
 	"key" TEXT NOT NULL REFERENCES "setting_defs" ON UPDATE CASCADE ON DELETE CASCADE,
 	"user_value" TEXT,
-	"modified" INTEGER,
+	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
 	PRIMARY KEY("user", "key") ON CONFLICT REPLACE
 );
 CREATE TRIGGER "trigger_settings_update_modified"
@@ -144,7 +152,7 @@ CREATE TABLE "groups"(
 	"enabled" INTEGER NOT NULL DEFAULT 1,
 	"description" TEXT,
 	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
-	"modified" INTEGER
+	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
 );
 CREATE TRIGGER "trigger_groups_update_modified"
 AFTER UPDATE OF "name", "enabled", "description"
@@ -169,7 +177,7 @@ CREATE TABLE "mountpoints"(
 	"enabled" INTEGER NOT NULL DEFAULT 1,
 	"description" TEXT,
 	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
-	"modified" INTEGER
+	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
 );
 CREATE TRIGGER "trigger_mountpoints_update_modified"
 AFTER UPDATE OF "name", "mountpoint", "target", "writable", "enabled", "description"
@@ -192,7 +200,7 @@ CREATE TABLE "bookmarks"(
 	"path" TEXT NOT NULL,
 	"sort_order" INTEGER NOT NULL,
 	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
-	"modified" INTEGER
+	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
 );
 CREATE TRIGGER "trigger_bookmarks_update_modified"
 AFTER UPDATE OF "name", "path"
@@ -304,5 +312,16 @@ CREATE VIEW "view_users_groups_mountpoints_enabled" AS SELECT
 FROM "view_users_groups_mountpoints"
 WHERE "user_enabled" AND "group_enabled" AND "mountpoint_enabled";
 
+-- All settings
+CREATE VIEW "view_settings" AS SELECT
+	"setting_defs"."key" AS "key",
+	"users"."id" AS "user",
+	"setting_defs"."default" AS "default_value",
+	"setting_defs"."system_value" AS "system_value",
+	COALESCE("settings"."user_value", "setting_defs"."system_value") AS "user_value",
+	COALESCE("settings"."modified", "setting_defs"."modified") AS "modified"
+FROM "setting_defs"
+INNER JOIN "users" ON 1
+LEFT JOIN "settings" ON "settings"."key" = "setting_defs"."key" AND "settings"."user" = "users"."id";
 
 COMMIT TRANSACTION;
