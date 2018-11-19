@@ -16,9 +16,8 @@ Requirements
 
 Installation
 ============
-1. Copy config.php.sample to config.php
-2. Create the specified database file (ensure the file and directory are writable by the server process)
-3. Optional: Set the administrator username and password.
+1. Copy config.php.sample to config.php and make appropriate changes
+2. Create the specified database file (ensure the file and it's directory are writable by the server process)
+3. Optional, but highly recommended: Set the administrator username and password.
 	* These are used to set up the administrator account.
 4. Navigate to where this application is installed and run index.php
-
