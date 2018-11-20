@@ -1,5 +1,5 @@
-Garnet DeGelder's File Manager version 3.0.0
-============================================
+Garnet DeGelder's File Manager version 3
+========================================
 
 About
 =====
