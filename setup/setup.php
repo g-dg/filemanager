@@ -27,7 +27,7 @@ try {
 
 	// create the administrator account
 	$stmt = $setup_db->prepare('INSERT INTO "users"("name", "full_name", "password", "administrator", "read_only", "enabled") VALUES (?, ?, ?, 1, 0, 1);');
-	$stmt->execute([GARNETDG_FILEMANAGER_ADMIN_DEFAULT_USERNAME, GARNETDG_FILEMANAGER_ADMIN_DEFAULT_USERNAME, password_hash(GARNETDG_FILEMANAGER_ADMIN_DEFAULT_PASSWORD)]);
+	$stmt->execute([GARNETDG_FILEMANAGER_ADMIN_DEFAULT_USERNAME, GARNETDG_FILEMANAGER_ADMIN_DEFAULT_USERNAME, password_hash(GARNETDG_FILEMANAGER_ADMIN_DEFAULT_PASSWORD, PASSWORD_DEFAULT)]);
 	$stmt = null;
 
 	$setup_db->commit();
