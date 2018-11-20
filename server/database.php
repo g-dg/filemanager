@@ -64,7 +64,12 @@ function database_connect()
 		// check the database version
 		//TODO: use an upgrader if incompatable
 		if ($db_version < DATABASE_VERSION_MIN || $db_version > DATABASE_VERSION_MAX) {
-			throw new DatabaseException('Incompatable database version (' . $db_version . ')');
+			$upgrade_file = 'setup/upgrades/' . (string)$db_version . '-' . (string)DATABASE_VERSION_MIN . '.php';
+			if (is_file($upgrade_file) && is_readable($upgrade_file)) {
+				require($upgrade_file);
+			} else {
+				throw new DatabaseException('Incompatable database version (' . $db_version . ')');
+			}
 		}
 
 		// use write-ahead logging for performance reasons
