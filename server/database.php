@@ -58,12 +58,13 @@ function database_connect()
 		if ($db_version === 0) {
 			// run setup
 			require('setup/setup.php');
+			$db_version = (int)database_query('PRAGMA user_version;')[0][0];
 		}
 
 		// check the database version
 		//TODO: use an upgrader if incompatable
 		if ($db_version < DATABASE_VERSION_MIN || $db_version > DATABASE_VERSION_MAX) {
-			throw new DatabaseException('Incompatable database version');
+			throw new DatabaseException('Incompatable database version (' . $db_version . ')');
 		}
 
 		// use write-ahead logging for performance reasons
