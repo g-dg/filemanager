@@ -57,11 +57,5 @@ loader_load('client');
 // Run the inits
 loader_exec_inits();
 
-// Connect to the database
-database_connect();
-
-// Start the session
-session_start();
-
 // Execute the requested page
 exec_page();
