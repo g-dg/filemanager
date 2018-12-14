@@ -6,6 +6,7 @@ if (!defined('GARNETDG_FILEMANAGER')) {
 	exit();
 }
 
+class SettingAccessForbiddenException extends Exception {}
 class SettingNotFoundException extends Exception {}
 
 const SETTING_LEVEL_DEFAULT = 0;
@@ -20,7 +21,37 @@ const SETTING_LEVEL_USER = 2;
  */
 function settings_get($key, $level = SETTING_LEVEL_USER, $user = null)
 {
+	if (is_null($user)) {
+		$user = auth_current_user_id();
+	}
 
+	if (is_null($user)) { // user is not logged in
+		if ($level == SETTING_LEVEL_USER) {
+			throw new SettingAccessForbiddenException('User is not logged in');
+		}
+		$result = database_query('SELECT "default" AS "default_value", "system_value" FROM "setting_defs" WHERE "key" = ?', [$key]);
+		if (count($result) < 1) {
+			throw new SettingNotFoundException('Setting key "' . $key . '" was not found');
+		}
+		$setting = $result[0];
+	} else {
+		$result = database_query('SELECT "default_value", "system_value", "user_value" FROM "view_settings" WHERE "key" = ? AND "user" = ?', [$key, $user]);
+		if (count($result) < 1) {
+			throw new SettingNotFoundException('Setting key "' . $key . '" was not found');
+		}
+		$setting = $result[0];
+	}
+
+	switch ($level) {
+		case SETTING_LEVEL_DEFAULT:
+			return json_decode($setting['default_value']);
+		case SETTING_LEVEL_SYSTEM:
+			return json_decode($setting['system_value']);
+		case SETTING_LEVEL_USER:
+			return json_decode($setting['user_value']);
+		default:
+			throw new Exception('Invalid setting level');
+	}
 }
 
 /**
