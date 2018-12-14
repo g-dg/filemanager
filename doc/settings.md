@@ -17,13 +17,13 @@ When accessing settings, there is a level parameter which may be used to specify
 Settings
 --------
 
- - session.gc.probability: 1
- - session.gc.divisor: 1000
- - session.gc.age.max: 31536000
- - session.cookie.name: "sessid"
- - session.id.length: 255
- - session.id.chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
- - session.age.max: 2592000
- - session.csrf_token.length: 255
- - session.csrf_token.chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+ - `session.gc.probability`: `1`
+ - `session.gc.divisor`: `1000`
+ - `session.gc.age.max`: `31536000`
+ - `session.cookie.name`: `"sessid"`
+ - `session.id.length`: `255`
+ - `session.id.chars`: `"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"`
+ - `session.age.max`: `2592000`
+ - `session.csrf_token.length`: `255`
+ - `session.csrf_token.chars`: `"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"`
  
