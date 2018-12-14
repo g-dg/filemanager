@@ -41,7 +41,7 @@ function loader_load($directory)
 /**
  * Executes the inits registered with registerInit()
  */
-function loader_execute_inits()
+function loader_exec_inits()
 {
 	global $loader_registered_inits;
 
