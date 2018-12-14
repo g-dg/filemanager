@@ -321,7 +321,7 @@ CREATE VIEW "view_settings" AS SELECT
 	COALESCE("settings"."user_value", "setting_defs"."system_value") AS "user_value",
 	COALESCE("settings"."modified", "setting_defs"."modified") AS "modified"
 FROM "setting_defs"
-INNER JOIN "users" ON 1
+LEFT JOIN "users" ON 1
 LEFT JOIN "settings" ON "settings"."key" = "setting_defs"."key" AND "settings"."user" = "users"."id";
 
 COMMIT TRANSACTION;
