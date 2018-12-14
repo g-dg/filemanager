@@ -26,7 +26,7 @@ function session_start($sessid = null, $set_cookie = true, $regenerate_on_failur
 	global $session_id;
 
 	// don't run if the session is already started
-	if (!is_null($session_id)) {
+	if (is_null($session_id)) {
 		// check whether to do a garbage-collect
 		if (mt_rand(1, settings_get('session.gc.divisor', SETTING_LEVEL_SYSTEM)) <= (settings_get('session.gc.probability', SETTING_LEVEL_SYSTEM))) {
 			session_gc();
