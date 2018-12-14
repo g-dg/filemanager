@@ -6,3 +6,6 @@ if (!defined('GARNETDG_FILEMANAGER')) {
 	exit();
 }
 
+function exec_client($page_path) {
+	require('client/html/index.php');
+}
