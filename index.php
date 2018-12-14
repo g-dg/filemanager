@@ -37,6 +37,19 @@ ignore_user_abort(true);
 
 // define exceptions in this namespace
 class Exception extends \Exception {}
+class LogicException extends Exception {}
+class BadFunctionCallException extends LogicException {}
+class BadMethodCallException extends BadFunctionCallException {}
+class DomainException extends LogicException {}
+class InvalidArgumentException extends LogicException{}
+class LengthException extends LogicException {}
+class OutOfRangeException extends LogicException {}
+class RuntimeException extends Exception {}
+class OutOfBoundsException extends RuntimeException {}
+class OverflowException extends RuntimeException {}
+class RangeException extends RuntimeException {}
+class UnderflowException extends RuntimeException {}
+class UnexpectedValueException extends RuntimeException {}
 
 // Load the config file
 require_once('config.php');
