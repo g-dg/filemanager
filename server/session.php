@@ -77,7 +77,7 @@ function session_start($sessid = null, $set_cookie = true, $regenerate_on_failur
 		
 		// set the cookie
 		if ($set_cookie) {
-			setcookie($cookie_name, $session_id, 0, "", "", false, true);
+			setcookie($cookie_name, $session_id, 0, dirname($_SERVER['SCRIPT_NAME']), "", false, true);
 		}
 	}
 
