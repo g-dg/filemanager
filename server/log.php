@@ -46,7 +46,7 @@ function log($level, $message, $type, $details = null)
 		[
 			':level' => (int)$level,
 			':type' => (string)$type,
-			':user' => null,//TODO
+			':user' => auth_current_user_id(),
 			':message' => (string)$message,
 			':details' => json_encode($details),
 			':client_addr' => isset($_SERVER['REMOTE_ADDR']) ? (string)$_SERVER['REMOTE_ADDR'] : null,
