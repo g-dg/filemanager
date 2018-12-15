@@ -26,6 +26,7 @@ function html_decode($string) {
 
 /**
  * Returns the http root directory of the application
+ * This has a leading slash, but no trailing slash
  * Note: this may not work well with url rewriting
  * @return string Root path of application
  */
@@ -34,6 +35,11 @@ function get_application_http_root_path()
 	return dirname($_SERVER['SCRIPT_NAME']);
 }
 
+/**
+ * Encodes a http path
+ * @param path the path to encode
+ * @return string The encoded path
+ */
 function http_encode_path($path)
 {
 	$raw_path_array = explode('/', $path);
@@ -44,7 +50,13 @@ function http_encode_path($path)
 	return implode('/', $encoded_path_array);
 }
 
-function http_encode_query($query)
+/**
+ * Encodes a string for inclusion in a query string
+ * This encodes '?', '=', '&', so it should not be used for the whole query string
+ * @param query The query string part
+ * @return string The encoded query string part
+ */
+function http_encode_query_part($query)
 {
 	return urlencode($query);
 }
