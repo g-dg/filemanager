@@ -78,6 +78,16 @@ function database_connect()
 
 		// enable foreign key constraints
 		database_query('PRAGMA foreign_keys = ON;');
+
+		// analyze the database
+		if ((mt_rand() / mt_getrandmax()) < settings_get_system('database.analyze.probability')) {
+			database_query('ANALYZE;');
+		}
+
+		// vacuum the database
+		if ((mt_rand() / mt_getrandmax()) < settings_get_system('database.analyze.probability')) {
+			database_query('VACUUM;');
+		}
 	}
 }
 
