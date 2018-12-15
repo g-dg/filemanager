@@ -10,8 +10,7 @@ Settings are stored in the database as JSON strings, and as such can only contai
 Settings
 --------
 
- - `session.gc.probability`: `1`
- - `session.gc.divisor`: `1000`
+ - `session.gc.probability`: `0.001`
  - `session.gc.age.max`: `31536000`
  - `session.cookie.name`: `"sessid"`
  - `session.id.length`: `255`
@@ -19,4 +18,5 @@ Settings
  - `session.age.max`: `2592000`
  - `session.csrf_token.length`: `255`
  - `session.csrf_token.chars`: `"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"`
- 
+ - `database.analyze.probability`: `0.001`
+ - `database.vacuum.probability`: `0.001`
