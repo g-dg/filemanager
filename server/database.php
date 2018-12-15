@@ -40,10 +40,10 @@ function database_connect()
 	if (is_null($database_connection)) {
 		// check if file exists and is readable
 		if (!is_file(GARNETDG_FILEMANAGER_DATABASE_FILE) ||
-				!is_readable(GARNETDG_FILEMANAGER_DATABASE_FILE) ||
-				!is_writable(GARNETDG_FILEMANAGER_DATABASE_FILE) ||
-				!is_readable(dirname(GARNETDG_FILEMANAGER_DATABASE_FILE)) ||
-				!is_writable(dirname(GARNETDG_FILEMANAGER_DATABASE_FILE))) {
+			!is_readable(GARNETDG_FILEMANAGER_DATABASE_FILE) ||
+			!is_writable(GARNETDG_FILEMANAGER_DATABASE_FILE) ||
+			!is_readable(dirname(GARNETDG_FILEMANAGER_DATABASE_FILE)) ||
+			!is_writable(dirname(GARNETDG_FILEMANAGER_DATABASE_FILE))) {
 			throw new DatabaseException('The database is not set up or is inaccessible (must be readable and writable and in a readable and writable directory)');
 		}
 

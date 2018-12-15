@@ -15,7 +15,8 @@ class SettingNotFoundException extends Exception {}
  * @param force Set to true to bypass permission checks
  * @return mixed The setting value
  */
-function settings_get_system($key, $force = false) {
+function settings_get_system($key, $force = false)
+{
 	$result = database_query('SELECT "system_value" FROM "setting_defs" WHERE "key" = ?', [$key]);
 	if (count($result) < 1) {
 		throw new SettingNotFoundException('Setting key "' . $key . '" was not found');
@@ -30,7 +31,8 @@ function settings_get_system($key, $force = false) {
  * @param force Set to true to bypass permission checks
  * @return mixed The setting value
  */
-function settings_get_user($key, $user = null, $force = false) {
+function settings_get_user($key, $user = null, $force = false)
+{
 	if (is_null($user)) {
 		if (is_null($user = auth_current_user_id())) {
 			throw new SettingAccessForbiddenException('User is not logged in');
@@ -53,7 +55,8 @@ function settings_get_user($key, $user = null, $force = false) {
  * @param value The value to set
  * @param force Set to true to bypass permission checks
  */
-function settings_set_system($key, $value, $force = false) {
+function settings_set_system($key, $value, $force = false)
+{
 	if (!(auth_current_user_administrator() || $force)) {
 		throw new SettingAccessForbiddenException('Not allowed to access another user\'s settings');
 	}
@@ -67,7 +70,8 @@ function settings_set_system($key, $value, $force = false) {
  * @param user The user to set the setting for
  * @param force Set to true to bypass permission checks
  */
-function settings_set_user($key, $value, $user = null, $force = false) {
+function settings_set_user($key, $value, $user = null, $force = false)
+{
 	if (is_null($user)) {
 		if (is_null($user = auth_current_user_id())) {
 			throw new SettingAccessForbiddenException('User is not logged in');
@@ -85,7 +89,8 @@ function settings_set_user($key, $value, $user = null, $force = false) {
  * @param key The key to reset
  * @param force Set to true to bypass permission checks
  */
-function settings_reset_system($key, $force = false) {
+function settings_reset_system($key, $force = false)
+{
 	if (!(auth_current_user_administrator() || $force)) {
 		throw new SettingAccessForbiddenException('Not allowed to access another user\'s settings');
 	}
@@ -98,7 +103,8 @@ function settings_reset_system($key, $force = false) {
  * @param user The user to reset the setting for
  * @param force Set to true to bypass permission checks
  */
-function settings_reset_user($key, $user = null, $force = false) {
+function settings_reset_user($key, $user = null, $force = false)
+{
 	if (is_null($user)) {
 		if (is_null($user = auth_current_user_id())) {
 			throw new SettingAccessForbiddenException('User is not logged in');
@@ -117,7 +123,8 @@ function settings_reset_user($key, $user = null, $force = false) {
  * @param force Set to true to bypass permission checks
  * @return array The setting values
  */
-function settings_get_all($user = null, $force = false) {
+function settings_get_all($user = null, $force = false)
+{
 	if (is_null($user)) {
 		if (is_null($user = auth_current_user_id())) {
 			throw new SettingAccessForbiddenException('User is not logged in');

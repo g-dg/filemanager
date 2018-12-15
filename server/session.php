@@ -71,7 +71,8 @@ function session_start($sessid = null, $set_cookie = true, $regenerate_on_failur
 				// generate the CSRF token
 				session_set('session.csrf.token', generate_random_string(settings_get_system('session.csrf_token.length'), settings_get_system('session.csrf_token.chars')));
 			}
-		} finally {
+		}
+		finally {
 			database_unlock();
 		}
 		
@@ -147,7 +148,7 @@ function session_set($key, $value)
 	}
 	try {
 		database_query('INSERT INTO "session_data"("session", "key", "value") VALUES (:session, :key, :value);', [':session' => $session_id, ':key' => $key, ':value' => serialize($value)]);
-	} catch(DatabaseException $e) {
+	} catch (DatabaseException $e) {
 		log(LOG_ERR, 'Could not set value of "' . $key . '"', 'session');
 		throw new SessionException('Could not set value of "' . $key . '" (database error).', $e->getCode(), $e);
 	}
@@ -237,7 +238,7 @@ function session_gc()
 function session_destroy()
 {
 	global $session_id;
-	
+
 	if (!session_started()) {
 		//log(LOG_ERR, 'Could not destroy session (session not started).', 'session');
 		//throw new SessionNotStartedException('Could not destroy session (session not started).');
@@ -253,7 +254,8 @@ function session_destroy()
  * @param length The length of the string
  * @param chars A string of characters to use
  */
-function generate_random_string($length, $chars) {
+function generate_random_string($length, $chars)
+{
 	if (function_exists('random_int')) {
 		try {
 			$string = '';
@@ -261,7 +263,8 @@ function generate_random_string($length, $chars) {
 				$string .= substr($chars, random_int(0, strlen($chars) - 1), 1);
 			}
 			return $string;
-		} catch (\Exception $e) {}
+		} catch (\Exception $e) {
+		}
 	}
 	$string = '';
 	for ($i = 0; $i < $length; $i++) {

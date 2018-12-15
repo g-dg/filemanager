@@ -6,7 +6,8 @@ if (!defined('GARNETDG_FILEMANAGER')) {
 	exit();
 }
 
-function exec_client($page_path) {
+function exec_client($page_path)
+{
 	session_start();
 	require('client/html/index.php');
 }
