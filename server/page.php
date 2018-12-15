@@ -29,8 +29,24 @@ function html_decode($string) {
  * Note: this may not work well with url rewriting
  * @return string Root path of application
  */
-function get_application_http_root_path() {
+function get_application_http_root_path()
+{
 	return dirname($_SERVER['SCRIPT_NAME']);
+}
+
+function http_encode_path($path)
+{
+	$raw_path_array = explode('/', $path);
+	$encoded_path_array = [];
+	foreach ($raw_path_array as $pathpart) {
+		$encoded_path_array[] = rawurlencode($pathpart);
+	}
+	return implode('/', $encoded_path_array);
+}
+
+function http_encode_query($query)
+{
+	return urlencode($query);
 }
 
 /**
