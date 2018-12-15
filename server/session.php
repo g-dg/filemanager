@@ -28,11 +28,11 @@ function session_start($sessid = null, $set_cookie = true, $regenerate_on_failur
 	// don't run if the session is already started
 	if (is_null($session_id)) {
 		// check whether to do a garbage-collect
-		if (mt_rand(1, settings_get('session.gc.divisor', SETTING_LEVEL_SYSTEM)) <= (settings_get('session.gc.probability', SETTING_LEVEL_SYSTEM))) {
+		if (mt_rand(1, settings_get_system('session.gc.divisor')) <= (settings_get_system('session.gc.probability'))) {
 			session_gc();
 		}
 
-		$cookie_name = settings_get('session.cookie.name', SETTING_LEVEL_SYSTEM);
+		$cookie_name = settings_get_system('session.cookie.name');
 
 		// get the session ID
 		if (!is_null($sessid)) { // the session ID is passed as a parameter of the function
@@ -49,13 +49,13 @@ function session_start($sessid = null, $set_cookie = true, $regenerate_on_failur
 			// check if the session exists
 			if (!is_null($session_id)) {
 				// check if the session is valid
-				if ((int)database_query('SELECT COUNT() FROM "sessions" WHERE "id" = ? AND "last_used" > ?;', [(string)$session_id], time() - settings_get('session.age.max'))[0][0] == 0) {
+				if ((int)database_query('SELECT COUNT() FROM "sessions" WHERE "id" = ? AND "last_used" > ?;', [(string)$session_id], time() - settings_get_system('session.age.max'))[0][0] == 0) {
 					if ($generate_new_on_failure) {
-						$session_id = generate_random_string(settings_get('session.id.length', SETTING_LEVEL_SYSTEM), settings_get('session.id.chars', SETTING_LEVEL_SYSTEM));
+						$session_id = generate_random_string(settings_get_system('session.id.length'), settings_get_system('session.id.chars'));
 						database_query('INSERT INTO "sessions"("id") VALUES (?);', [$session_id]);
 
 						// generate the CSRF token
-						session_set('session.csrf.token', generate_random_string(settings_get('session.csrf_token.length', SETTING_LEVEL_SYSTEM), settings_get('session.csrf_token.chars', SETTING_LEVEL_SYSTEM)));
+						session_set('session.csrf.token', generate_random_string(settings_get_system('session.csrf_token.length'), settings_get_system('session.csrf_token.chars')));
 					} else {
 						return false;
 					}
@@ -65,11 +65,11 @@ function session_start($sessid = null, $set_cookie = true, $regenerate_on_failur
 				}
 			} else {
 				// generate a new session
-				$session_id = generate_random_string(settings_get('session.id.length', SETTING_LEVEL_SYSTEM), settings_get('session.id.chars', SETTING_LEVEL_SYSTEM));
+				$session_id = generate_random_string(settings_get_system('session.id.length'), settings_get_system('session.id.chars'));
 				database_query('INSERT INTO "sessions"("id") VALUES (?);', [$session_id]);
 
 				// generate the CSRF token
-				session_set('session.csrf.token', generate_random_string(settings_get('session.csrf_token.length', SETTING_LEVEL_SYSTEM), settings_get('session.csrf_token.chars', SETTING_LEVEL_SYSTEM)));
+				session_set('session.csrf.token', generate_random_string(settings_get_system('session.csrf_token.length'), settings_get_system('session.csrf_token.chars')));
 			}
 		} finally {
 			database_unlock();
@@ -98,11 +98,11 @@ function session_new($destroy_previous = false, $set_cookie = true)
 	}
 
 	// generate a new session
-	$session_id = generate_random_string(settings_get('session.id.length', SETTING_LEVEL_SYSTEM), settings_get('session.id.chars', SETTING_LEVEL_SYSTEM));
+	$session_id = generate_random_string(settings_get_system('session.id.length'), settings_get_system('session.id.chars'));
 	database_query('INSERT INTO "sessions"("id") VALUES (?);', [$session_id]);
 
 	// generate a new CSRF token
-	session_set('session.csrf.token', generate_random_string(settings_get('session.csrf_token.length', SETTING_LEVEL_SYSTEM), settings_get('session.csrf_token.chars', SETTING_LEVEL_SYSTEM)));
+	session_set('session.csrf.token', generate_random_string(settings_get_system('session.csrf_token.length'), settings_get_system('session.csrf_token.chars')));
 
 	// set the cookie
 	if ($set_cookie) {
@@ -228,7 +228,7 @@ function session_unset($key)
  */
 function session_gc()
 {
-	database_query('DELETE FROM "sessions" WHERE "last_used" < ?;', [time() - settings_get('session.gc.age.max')]);
+	database_query('DELETE FROM "sessions" WHERE "last_used" < ?;', [time() - settings_get_system('session.gc.age.max')]);
 }
 
 /**
