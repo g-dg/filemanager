@@ -36,6 +36,17 @@ function get_application_http_root_path()
 }
 
 /**
+ * Returns the http script path and nmae of the application
+ * This has a leading slash, but no trailing slash
+ * Note: this may not work well with url rewriting
+ * @return string Script path of application
+ */
+function get_application_http_script_path()
+{
+	return $_SERVER['SCRIPT_NAME'];
+}
+
+/**
  * Encodes a http path
  * @param path the path to encode
  * @return string The encoded path
