@@ -103,7 +103,7 @@ function database_lock()
 		try {
 			$database_connection->beginTransaction();
 		} catch (\PDOException $e) {
-			throw new DatabaseException($e->getMessage(), $e->getCode(), $e);
+			throw new DatabaseException($e->getMessage(), 0, $e);
 		}
 	}
 }
@@ -120,7 +120,7 @@ function database_unlock()
 		try {
 			$database_connection->commit();
 		} catch (\PDOException $e) {
-			throw new DatabaseException($e->getMessage(), $e->getCode(), $e);
+			throw new DatabaseException($e->getMessage(), 0, $e);
 		}
 	}
 }
@@ -160,10 +160,10 @@ function database_query($sql, $params = [])
 		} catch (\PDOException $e) {
 			// keep retrying if locked
 			if (substr_count($e->getMessage(), 'database is locked') == 0) {
-				throw new DatabaseException($e->getMessage(), $e->getCode(), $e);
+				throw new DatabaseException($e->getMessage(), 0, $e);
 			} else {
 				if (time() - $start_time > 60) {
-					throw new DatabaseException($e->getMessage(), $e->getCode(), $e);
+					throw new DatabaseException($e->getMessage(), 0, $e);
 				}
 				usleep(mt_rand(1000, 10000));
 			}
