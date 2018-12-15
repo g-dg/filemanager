@@ -82,22 +82,31 @@ function exec_page()
 	$requested_path = $page_path_array;
 	array_shift($requested_path);
 	$requested_path = '/' . implode('/', $requested_path);
-	switch ($root_page) {
-		case 'api':
-			// run the api handler
-
-			break;
-		case 'file':
-			// run file serving handler
-
-			break;
-		case 'm3u_playlist':
-			// run the m3u playlist handler
-
-			break;
-		default:
-			// send the client page to the client
-			exec_client($requested_path);
-			break;
+	try {
+		switch ($root_page) {
+			case 'api':
+				// run the api handler
+				$result = exec_api($requested_path);
+				break;
+			case 'file':
+				// run file serving handler
+				$result = send_file($requested_path);
+				break;
+			case 'm3u_playlist':
+				// run the m3u playlist handler
+				$result = send_playlist($requested_path);
+				break;
+			default:
+				// send the client page to the client
+				$result = exec_client($requested_path);
+				break;
+		}
+		if (!$result) {
+			log(LOG_ERR, 'Page handler for "' . $root_page . '" exited with an error status', 'page');
+			http_response_code(500);
+		}
+	} catch (\Exception $e) {
+		log(LOG_ERR, 'Page handler for "' . $root_page . '" threw an unhandled exception', 'page', ['exception' => exception_to_array($e)]);
+		http_response_code(500);
 	}
 }
