@@ -9,79 +9,128 @@ if (!defined('GARNETDG_FILEMANAGER')) {
 class SettingAccessForbiddenException extends Exception {}
 class SettingNotFoundException extends Exception {}
 
-const SETTING_LEVEL_DEFAULT = 0;
-const SETTING_LEVEL_SYSTEM = 1;
-const SETTING_LEVEL_USER = 2;
+/**
+ * Get the system value of a setting
+ * @param key The key to get
+ * @param force Set to true to bypass permission checks
+ * @return mixed The setting value
+ */
+function settings_get_system($key, $force = false) {
+	$result = database_query('SELECT "system_value" FROM "setting_defs" WHERE "key" = ?', [$key]);
+	if (count($result) < 1) {
+		throw new SettingNotFoundException('Setting key "' . $key . '" was not found');
+	}
+	return json_decode($result[0][0]);
+}
 
 /**
- * Get the value of a setting
- * @param key The setting to get
- * @param level The level to cascade to
- * @param user The user ID to get the setting of
+ * Get the user value of a setting
+ * @param key The key to get
+ * @param user The user to get the setting of
+ * @param force Set to true to bypass permission checks
+ * @return mixed The setting value
  */
-function settings_get($key, $level = SETTING_LEVEL_USER, $user = null)
-{
+function settings_get_user($key, $user = null, $force = false) {
 	if (is_null($user)) {
-		$user = auth_current_user_id();
-	}
-
-	if (is_null($user)) { // user is not logged in
-		if ($level == SETTING_LEVEL_USER) {
+		if (is_null($user = auth_current_user_id())) {
 			throw new SettingAccessForbiddenException('User is not logged in');
 		}
-		$result = database_query('SELECT "default" AS "default_value", "system_value" FROM "setting_defs" WHERE "key" = ?', [$key]);
-		if (count($result) < 1) {
-			throw new SettingNotFoundException('Setting key "' . $key . '" was not found');
-		}
-		$setting = $result[0];
 	} else {
-		$result = database_query('SELECT "default_value", "system_value", "user_value" FROM "view_settings" WHERE "key" = ? AND "user" = ?', [$key, $user]);
-		if (count($result) < 1) {
-			throw new SettingNotFoundException('Setting key "' . $key . '" was not found');
+		if (!($user == auth_current_user_id() || auth_current_user_administrator() || $force)) {
+			throw new SettingAccessForbiddenException('Not allowed to access another user\'s settings');
 		}
-		$setting = $result[0];
 	}
-
-	switch ($level) {
-		case SETTING_LEVEL_DEFAULT:
-			return json_decode($setting['default_value']);
-		case SETTING_LEVEL_SYSTEM:
-			return json_decode($setting['system_value']);
-		case SETTING_LEVEL_USER:
-			return json_decode($setting['user_value']);
-		default:
-			throw new Exception('Invalid setting level');
+	$result = database_query('SELECT "user_value" FROM "view_settings" WHERE "key" = ? AND "user" = ?', [$key, $user]);
+	if (count($result) < 1) {
+		throw new SettingNotFoundException('Setting key "' . $key . '" was not found');
 	}
+	return json_decode($result[0][0]);
 }
 
 /**
- * Set the value of a setting
- * @param key The setting to set
- * @param level The level of the setting to set. Note: SETTING_LEVEL_DEFAULT may not be used and will result in an InvalidArgumentException
- * @param user The user ID to set the setting of
+ * Set the system value of a setting
+ * @param key The key to set
+ * @param value The value to set
+ * @param force Set to true to bypass permission checks
  */
-function settings_set($key, $level = SETTING_LEVEL_USER, $user = null)
-{
-
+function settings_set_system($key, $value, $force = false) {
+	if (!(auth_current_user_administrator() || $force)) {
+		throw new SettingAccessForbiddenException('Not allowed to access another user\'s settings');
+	}
+	database_query('UPDATE "settings_defs" SET "system_value" = ? WHERE "key" = ?', [json_encode($value), $key]);
 }
 
 /**
- * Reset the setting to the level above it
- * @param key The setting to reset
- * @param level The level of the setting to reset Note: SETTING_LEVEL_DEFAULT may not be used and will result in an InvalidArgumentException
- * @param user The user ID to reset the setting of
+ * Set the user value of a setting
+ * @param key The key to set
+ * @param value The value to set
+ * @param user The user to set the setting for
+ * @param force Set to true to bypass permission checks
  */
-function settings_reset($key, $level = SETTING_LEVEL_USER, $user = null)
-{
-
+function settings_set_user($key, $value, $user = null, $force = false) {
+	if (is_null($user)) {
+		if (is_null($user = auth_current_user_id())) {
+			throw new SettingAccessForbiddenException('User is not logged in');
+		}
+	} else {
+		if (!($user == auth_current_user_id() || auth_current_user_administrator() || $force)) {
+			throw new SettingAccessForbiddenException('Not allowed to modify another user\'s settings');
+		}
+	}
+	database_query('INSERT INTO "settings"("user", "key", "user_value") VALUES (?, ?, ?)', [$user, $key, json_encode($value)]);
 }
 
 /**
- * Get all setting keys and values
- * @param level The level of the settings to get
- * @param user The user to get the settings of
+ * Set a system setting value to the default
+ * @param key The key to reset
+ * @param force Set to true to bypass permission checks
  */
-function settings_list($level = SETTING_LEVEL_USER, $user = null)
-{
+function settings_reset_system($key, $force = false) {
+	if (!(auth_current_user_administrator() || $force)) {
+		throw new SettingAccessForbiddenException('Not allowed to access another user\'s settings');
+	}
+	database_query('UPDATE "setting_defs" SET "system_value" = (SELECT "default" FROM "setting_defs" WHERE "key" = ?) WHERE "key" = ?', [$key, $key]);
+}
 
+/**
+ * Set the user setting to the system value
+ * @param key The key to set
+ * @param user The user to reset the setting for
+ * @param force Set to true to bypass permission checks
+ */
+function settings_reset_user($key, $user = null, $force = false) {
+	if (is_null($user)) {
+		if (is_null($user = auth_current_user_id())) {
+			throw new SettingAccessForbiddenException('User is not logged in');
+		}
+	} else {
+		if (!($user == auth_current_user_id() || auth_current_user_administrator() || $force)) {
+			throw new SettingAccessForbiddenException('Not allowed to access another user\'s settings');
+		}
+	}
+	database_query('DELETE FROM "settings" WHERE "key" = ? AND "user" = ?', [$key, $user]);
+}
+
+/**
+ * Gets all the setting values for a particular user
+ * @param user The user to get the settings for
+ * @param force Set to true to bypass permission checks
+ * @return array The setting values
+ */
+function settings_get_all($user = null, $force = false) {
+	if (is_null($user)) {
+		if (is_null($user = auth_current_user_id())) {
+			throw new SettingAccessForbiddenException('User is not logged in');
+		}
+	} else {
+		if (!($user == auth_current_user_id() || auth_current_user_administrator() || $force)) {
+			throw new SettingAccessForbiddenException('Not allowed to access another user\'s settings');
+		}
+	}
+	$result = database_query('SELECT "key", "user_value" FROM "view_settings" WHERE "user" = ?', [$user]);
+	$settings = [];
+	foreach ($results as $result) {
+		$settings[$result['key']] = json_decode($result['user_value']);
+	}
+	return $settings;
 }
