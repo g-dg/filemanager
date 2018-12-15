@@ -24,7 +24,9 @@ function log($level, $message, $type, $details = null)
 	if ($log_recursion_level < 2) {
 		// getting user id may cause logging
 		try {
-			$current_user_id = auth_current_user_id();
+			if (session_started()) {
+				$current_user_id = auth_current_user_id();
+			}
 		} catch (Exception $e) {
 			log(LOG_ERR, 'An error occurred while getting information for logging', 'log');
 		}
