@@ -21,10 +21,12 @@ function log($level, $message, $type, $details = null)
 	$log_recursion_level++;
 
 	$current_user_id = null;
+
+	// prevent excessive recursive calls to logging
 	if ($log_recursion_level < 2) {
-		// getting user id may cause logging
 		try {
 			if (session_started()) {
+				// getting user id may cause logging
 				$current_user_id = auth_current_user_id();
 			}
 		} catch (Exception $e) {
@@ -83,5 +85,15 @@ function log($level, $message, $type, $details = null)
 
 function exception_to_array($e)
 {
-	return ['type' => get_class($e), 'message' => $e->getMessage(), 'code' => $e->getCode(), 'file' => $e->getFile(), 'line' => $e->getLine(), 'trace' => $e->getTrace()];
+	static $recurses = 0;
+	if (is_null($e)) {
+		return null;
+	}
+	if ($recurses >= 4) {
+		return false;
+	}
+	$recurses++;
+	$exception_array = ['type' => get_class($e), 'message' => $e->getMessage(), 'code' => $e->getCode(), 'file' => $e->getFile(), 'line' => $e->getLine(), 'trace' => $e->getTrace(), 'previous' => exception_to_array($e->getPrevious())];
+	$recurses--;
+	return $exception_array;
 }
