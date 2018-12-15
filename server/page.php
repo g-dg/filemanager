@@ -29,7 +29,7 @@ function html_decode($string) {
  * Note: this may not work well with url rewriting
  * @return string Root path of application
  */
-function getApplicationRootHttpPath() {
+function get_application_http_root_path() {
 	return dirname($_SERVER['SCRIPT_NAME']);
 }
 
