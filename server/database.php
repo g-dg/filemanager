@@ -76,6 +76,10 @@ function database_connect()
 		database_query('PRAGMA journal_mode=WAL;');
 		database_query('PRAGMA synchronous=NORMAL;');
 
+		// improve performance (at cost of memory)
+		database_query('PRAGMA temp_store=MEMORY;');
+		database_query('PRAGMA cache_size=-16384');
+
 		// enable foreign key constraints
 		database_query('PRAGMA foreign_keys = ON;');
 
