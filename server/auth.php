@@ -6,6 +6,19 @@ if (!defined('GARNETDG_FILEMANAGER')) {
 	exit();
 }
 
+class NotAuthenticatedException extends Exception {}
+
+/**
+ * Check if the user is authenticated
+ * @return bool Whether the authentication was successful or not
+ */
+function authenticate($username = null, $password = null, $die_on_failure = false) {
+	session_start();
+	if (!is_null(session_get('auth.user.id'))) { // check if not already authenticated
+
+	}
+}
+
 /**
  * Get the current user ID, null if not logged in
  * @return int The current user ID
