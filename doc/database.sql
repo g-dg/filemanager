@@ -9,8 +9,8 @@ DROP VIEW IF EXISTS "view_settings";
 DROP VIEW IF EXISTS "view_users_groups_mountpoints_enabled";
 DROP VIEW IF EXISTS "view_users_groups_mountpoints";
 
-DROP TABLE IF EXISTS "search_keyword_index";
-DROP TABLE IF EXISTS "search_file_index";
+DROP TABLE IF EXISTS "search_index_keywords";
+DROP TABLE IF EXISTS "search_index_entries";
 DROP TABLE IF EXISTS "content_types_to_extensions";
 DROP TABLE IF EXISTS "extensions_to_content_types";
 DROP TABLE IF EXISTS "history";
@@ -235,22 +235,23 @@ CREATE TABLE "content_types_to_extensions"(
 File types:
 0: file
 1: directory
-2: other/unknown
+NULL: other/unknown
 */
-CREATE TABLE "search_file_index"(
+CREATE TABLE "search_index_entries"(
 	"id" INTEGER PRIMARY KEY,
-	"directory" TEXT NOT NULL,
-	"filename" TEXT NOT NULL,
+	"parent" INTEGER REFERENCES "search_index_entries" ON UPDATE CASCADE ON DELETE CASCADE,
+	"name" TEXT NOT NULL,
+	"type" INTEGER NOT NULL,
 	"mtime" INTEGER NOT NULL,
-	"type" INTEGER NOT NULL DEFAULT 0,
-	"size" INTEGER NOT NULL DEFAULT 0,
-	"last_updated" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
+	"size" INTEGER NOT NULL,
+	"last_indexed" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
+	UNIQUE("parent", "name") ON CONFLICT REPLACE
 );
-CREATE TABLE "search_keyword_index"(
-	"file" INTEGER NOT NULL REFERENCES "search_file_index" ON UPDATE CASCADE ON DELETE CASCADE,
+CREATE TABLE "search_index_keywords"(
+	"entry" INTEGER NOT NULL REFERENCES "search_index_entries" ON UPDATE CASCADE ON DELETE CASCADE,
 	"keyword" TEXT NOT NULL
 );
-CREATE INDEX "index_search_keyword_index_keyword" ON "search_keyword_index"("keyword");
+CREATE INDEX "index_search_index_keywords_keyword" ON "search_index_keywords"("keyword");
 
 -- View for the user-group-mountpoint joins
 CREATE VIEW "view_users_groups_mountpoints" AS SELECT
