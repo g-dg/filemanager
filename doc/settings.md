@@ -28,6 +28,8 @@ Settings
 - `search.index.autoindex.max_time`: `100`
 - `search.index.min_age`: `0`
 - `search.index.max_age`: `86400`
+- `auth.delay.base`: `500`
+- `auth.delay.on_previous_failures`: `1000`
 
 - `browser.sort.field`: `"name"`
 - `browser.sort.order`: `"asc"`
