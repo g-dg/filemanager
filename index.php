@@ -29,7 +29,7 @@ define('GARNETDG_FILEMANAGER_VERSION',
 define('GARNETDG_FILEMANAGER_NAME', 'Garnet DeGelder\'s File Manager');
 
 // Copyright string
-define('GARNETDG_FILEMANAGER_COPYRIGHT_HTML', 'Copyright &copy; 2017-2018 Garnet DeGelder');
+define('GARNETDG_FILEMANAGER_COPYRIGHT_HTML', 'Copyright &copy; 2017-2019 Garnet DeGelder');
 
 
 // Prevent the user from cancelling the request
