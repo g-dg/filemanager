@@ -57,21 +57,21 @@ BEGIN
 	UPDATE "users" SET "password_changed" = STRFTIME('%s', 'now') WHERE rowid = NEW.rowid;
 END;
 
--- Log
+-- Logging
 CREATE TABLE "log"(
-	"id" INTEGER PRIMARY KEY,
-	"level" INTEGER,
-	"type" TEXT,
-	"timestamp" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
-	"user" INTEGER REFERENCES "users" ON UPDATE CASCADE ON DELETE SET NULL,
-	"message" TEXT NOT NULL,
-	"details" TEXT,
-	"client_addr" TEXT,
-	"method" TEXT,
-	"path" TEXT,
-	"host" TEXT,
-	"referrer" TEXT,
-	"user_agent" TEXT
+	"id" INTEGER PRIMARY KEY, -- Log entry id
+	"level" INTEGER, -- Severity
+	"type" TEXT, -- Component that caused the log
+	"timestamp" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')), -- When the entry was added
+	"user" INTEGER REFERENCES "users" ON UPDATE CASCADE ON DELETE SET NULL, -- Which user was logged
+	"message" TEXT NOT NULL, -- The logging message
+	"details" TEXT, -- JSON object of details
+	"client_addr" TEXT, -- The client's IP address
+	"method" TEXT, -- The HTTP method
+	"path" TEXT, -- The requested path
+	"host" TEXT, -- The value of the host header
+	"referrer" TEXT, -- The HTTP referrer (if any)
+	"user_agent" TEXT -- The HTTP user agent (if any)
 );
 
 -- Settings
