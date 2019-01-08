@@ -188,12 +188,12 @@ END;
 CREATE TABLE "mountpoints_in_groups"(
 	"mountpoint" INTEGER NOT NULL REFERENCES "mountpoints" ON UPDATE CASCADE ON DELETE CASCADE,
 	"group" INTEGER NOT NULL REFERENCES "groups" ON UPDATE CASCADE ON DELETE CASCADE,
-	"list" INTEGER NOT NULL DEFAULT 1,
-	"create" INTEGER NOT NULL DEFAULT 0,
-	"write" INTEGER NOT NULL DEFAULT 0,
-	"rename" INTEGER NOT NULL DEFAULT 0,
-	"move" INTEGER NOT NULL DEFAULT 0,
-	"delete" INTEGER NOT NULL DEFAULT 0,
+	"list" INTEGER NOT NULL DEFAULT 1, -- List files inside directories
+	"create" INTEGER NOT NULL DEFAULT 0, -- Create files and directories
+	"write" INTEGER NOT NULL DEFAULT 0, -- Modify file contents
+	"rename" INTEGER NOT NULL DEFAULT 0, -- Rename files, keeping them in the current directory
+	"move" INTEGER NOT NULL DEFAULT 0, -- Move files to different spots within the mountpoint
+	"delete" INTEGER NOT NULL DEFAULT 0, -- Delete files and directories, required for moving to other mountpoints
 	PRIMARY KEY("mountpoint", "group") ON CONFLICT REPLACE
 );
 
