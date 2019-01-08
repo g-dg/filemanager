@@ -28,26 +28,28 @@ DROP TABLE IF EXISTS "setting_defs";
 DROP TABLE IF EXISTS "log";
 DROP TABLE IF EXISTS "users";
 
--- Users
+-- User accounts
 CREATE TABLE "users"(
-	"id" INTEGER PRIMARY KEY,
-	"name" TEXT NOT NULL UNIQUE,
-	"full_name" TEXT NOT NULL,
-	"password" TEXT NOT NULL,
-	"administrator" INTEGER NOT NULL DEFAULT 0,
-	"read_only" INTEGER NOT NULL DEFAULT 0,
-	"enabled" INTEGER NOT NULL DEFAULT 1,
-	"description" TEXT,
-	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
-	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
-	"password_changed" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
+	"id" INTEGER PRIMARY KEY, -- User ID
+	"name" TEXT NOT NULL UNIQUE, -- User Name
+	"full_name" TEXT NOT NULL, -- User's full name, may default to username
+	"password" TEXT NOT NULL, -- User's password hashed with `password_hash`
+	"administrator" INTEGER NOT NULL DEFAULT 0, -- Whether the user is an administrator
+	"read_only" INTEGER NOT NULL DEFAULT 0, -- Whether the user can change anything to do with their account (such as assword)
+	"enabled" INTEGER NOT NULL DEFAULT 1, -- Whether the account is enabled
+	"description" TEXT, -- Account details, only viewable and editable by administrator
+	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')), -- When the user was created
+	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')), -- When the user was last modified (except for password changes)
+	"password_changed" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')) -- When the user's password was last changed
 );
+-- Updates the user's last modified field
 CREATE TRIGGER "trigger_users_update_modified"
 AFTER UPDATE OF "name", "full_name", "administrator", "read_only", "enabled", "description"
 ON "users" FOR EACH ROW
 BEGIN
 	UPDATE "users" SET "modified" = STRFTIME('%s', 'now') WHERE rowid = NEW.rowid;
 END;
+-- Updates the user's last password change field
 CREATE TRIGGER "trigger_users_update_password_changed"
 AFTER UPDATE OF "password"
 ON "users" FOR EACH ROW
