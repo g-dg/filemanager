@@ -120,9 +120,9 @@ CREATE TABLE "groups"(
 	"id" INTEGER PRIMARY KEY, -- Group ID
 	"name" TEXT NOT NULL UNIQUE, -- Name of group
 	"enabled" INTEGER NOT NULL DEFAULT 1, -- Whether the group is enabled
-	"description" TEXT, -- Group description (editable by administrator)
+	"description" TEXT -- Group description (editable by administrator)
 );
--- Mapping users to groups
+-- Maps users to groups
 CREATE TABLE "users_in_groups"(
 	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE, -- User ID
 	"group" INTEGER NOT NULL REFERENCES "groups" ON UPDATE CASCADE ON DELETE CASCADE, -- Group ID
