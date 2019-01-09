@@ -1,10 +1,13 @@
+-- Enable foreign keys
 PRAGMA foreign_keys = ON;
 
+-- Make it atomic
 BEGIN TRANSACTION;
 
 -- Major * 1,000,000 + Minor * 1,000 + Revision
 PRAGMA user_version = 3000000;
 
+-- Delete previously existing tables (if any)
 DROP VIEW IF EXISTS "view_settings";
 DROP VIEW IF EXISTS "view_users_groups_mountpoints_enabled";
 DROP VIEW IF EXISTS "view_users_groups_mountpoints";
@@ -289,4 +292,5 @@ FROM "setting_defs"
 LEFT JOIN "users" ON 1
 LEFT JOIN "settings" ON "settings"."key" = "setting_defs"."key" AND "settings"."user" = "users"."id";
 
+-- End the transaction
 COMMIT TRANSACTION;
