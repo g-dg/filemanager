@@ -122,23 +122,15 @@ CREATE TABLE "login_persistence"(
 
 -- Groups
 CREATE TABLE "groups"(
-	"id" INTEGER PRIMARY KEY,
-	"name" TEXT NOT NULL UNIQUE,
-	"enabled" INTEGER NOT NULL DEFAULT 1,
-	"description" TEXT,
-	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
-	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
+	"id" INTEGER PRIMARY KEY, -- Group ID
+	"name" TEXT NOT NULL UNIQUE, -- Name of group
+	"enabled" INTEGER NOT NULL DEFAULT 1, -- Whether the group is enabled
+	"description" TEXT, -- Group description (editable by administrator)
 );
-CREATE TRIGGER "trigger_groups_update_modified"
-AFTER UPDATE OF "name", "enabled", "description"
-ON "groups" FOR EACH ROW
-BEGIN
-	UPDATE "groups" SET "modified" = STRFTIME('%s', 'now') WHERE rowid = NEW.rowid;
-END;
-
+-- Mapping users to groups
 CREATE TABLE "users_in_groups"(
-	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
-	"group" INTEGER NOT NULL REFERENCES "groups" ON UPDATE CASCADE ON DELETE CASCADE,
+	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE, -- User ID
+	"group" INTEGER NOT NULL REFERENCES "groups" ON UPDATE CASCADE ON DELETE CASCADE, -- Group ID
 	PRIMARY KEY("user", "group") ON CONFLICT REPLACE
 );
 
