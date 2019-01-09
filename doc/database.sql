@@ -59,7 +59,7 @@ END;
 
 -- Logging
 CREATE TABLE "log"(
-	"id" INTEGER PRIMARY KEY, -- Log entry id
+	"id" INTEGER PRIMARY KEY, -- Log entry ID
 	"level" INTEGER, -- Severity
 	"type" TEXT, -- Component that caused the log
 	"timestamp" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')), -- When the entry was added
@@ -88,14 +88,14 @@ CREATE TABLE "settings"(
 	PRIMARY KEY("user", "key") ON CONFLICT REPLACE
 );
 
--- Logins
+-- Login history
 CREATE TABLE "logins"(
-	"id" INTEGER PRIMARY KEY,
-	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
-	"successful" INTEGER NOT NULL DEFAULT 1,
-	"timestamp" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
-	"client_addr" TEXT,
-	"user_agent" TEXT
+	"id" INTEGER PRIMARY KEY, -- Login ID
+	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE, -- User ID
+	"successful" INTEGER NOT NULL DEFAULT 1, -- Whether the login was successful
+	"timestamp" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')), -- When the login attempt occurred
+	"client_addr" TEXT, -- Client IP address (used for auditing)
+	"user_agent" TEXT -- Client User Agent string (for auditing)
 );
 
 -- Sessions
