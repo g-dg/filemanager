@@ -131,25 +131,18 @@ CREATE TABLE "users_in_groups"(
 
 -- Mountpoints
 CREATE TABLE "mountpoints"(
-	"id" INTEGER PRIMARY KEY,
-	"name" TEXT NOT NULL UNIQUE,
-	"mountpoint" TEXT NOT NULL UNIQUE,
-	"target" TEXT NOT NULL,
-	"writable" INTEGER NOT NULL DEFAULT 0,
-	"enabled" INTEGER NOT NULL DEFAULT 1,
-	"description" TEXT,
-	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
-	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
+	"id" INTEGER PRIMARY KEY, -- Mountpoint ID
+	"name" TEXT NOT NULL UNIQUE, -- Name
+	"mountpoint" TEXT NOT NULL UNIQUE, -- Where in the virtual filesystem the mountpoint is
+	"target" TEXT NOT NULL, -- Where in the real filesystem the mountpoint references
+	"writable" INTEGER NOT NULL DEFAULT 0, -- Whether the mountpoint is writable (overrides all other permissions)
+	"enabled" INTEGER NOT NULL DEFAULT 1, -- Whether the mountpoint is enabled
+	"description" TEXT -- Mountpoint description (editable by administrator)
 );
-CREATE TRIGGER "trigger_mountpoints_update_modified"
-AFTER UPDATE OF "name", "mountpoint", "target", "writable", "enabled", "description"
-ON "mountpoints" FOR EACH ROW
-BEGIN
-	UPDATE "mountpoints" SET "modified" = STRFTIME('%s', 'now') WHERE rowid = NEW.rowid;
-END;
+-- Maps groups to mountpoints
 CREATE TABLE "mountpoints_in_groups"(
-	"mountpoint" INTEGER NOT NULL REFERENCES "mountpoints" ON UPDATE CASCADE ON DELETE CASCADE,
-	"group" INTEGER NOT NULL REFERENCES "groups" ON UPDATE CASCADE ON DELETE CASCADE,
+	"mountpoint" INTEGER NOT NULL REFERENCES "mountpoints" ON UPDATE CASCADE ON DELETE CASCADE, -- Mountpoint ID
+	"group" INTEGER NOT NULL REFERENCES "groups" ON UPDATE CASCADE ON DELETE CASCADE, -- Group ID
 	"list" INTEGER NOT NULL DEFAULT 1, -- List files inside directories
 	"create" INTEGER NOT NULL DEFAULT 0, -- Create files and directories
 	"write" INTEGER NOT NULL DEFAULT 0, -- Modify file contents
