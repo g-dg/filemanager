@@ -110,21 +110,6 @@ CREATE TABLE "session_data"(
 	"value" TEXT,
 	PRIMARY KEY("session", "key") ON CONFLICT REPLACE
 );
-/*CREATE TRIGGER "trigger_session_data_insert_last_used"
-AFTER INSERT ON "session_data" FOR EACH ROW
-BEGIN
-	UPDATE "sessions" SET "last_used" = STRFTIME('%s', 'now') WHERE "id" = NEW."session" AND "last_used" < STRFTIME('%s', 'now');
-END;*/
-/*CREATE TRIGGER "trigger_session_data_update_last_used"
-AFTER UPDATE ON "session_data" FOR EACH ROW
-BEGIN
-	UPDATE "sessions" SET "last_used" = STRFTIME('%s', 'now') WHERE "id" = NEW."session" AND "last_used" < STRFTIME('%s', 'now');
-END;*/
-/*CREATE TRIGGER "trigger_session_data_delete_last_used"
-BEFORE DELETE ON "session_data" FOR EACH ROW
-BEGIN
-	UPDATE "sessions" SET "last_used" = STRFTIME('%s', 'now') WHERE "id" = OLD."session" AND "last_used" < STRFTIME('%s', 'now');
-END;*/
 
 -- Login Persistence
 CREATE TABLE "login_persistence"(
