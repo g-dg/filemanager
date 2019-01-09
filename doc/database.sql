@@ -39,16 +39,8 @@ CREATE TABLE "users"(
 	"enabled" INTEGER NOT NULL DEFAULT 1, -- Whether the account is enabled
 	"description" TEXT, -- Account details, only viewable and editable by administrator
 	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')), -- When the user was created
-	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')), -- When the user was last modified (except for password changes)
 	"password_changed" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')) -- When the user's password was last changed
 );
--- Updates the user's last modified field
-CREATE TRIGGER "trigger_users_update_modified"
-AFTER UPDATE OF "name", "full_name", "administrator", "read_only", "enabled", "description"
-ON "users" FOR EACH ROW
-BEGIN
-	UPDATE "users" SET "modified" = STRFTIME('%s', 'now') WHERE rowid = NEW.rowid;
-END;
 -- Updates the user's last password change field
 CREATE TRIGGER "trigger_users_update_password_changed"
 AFTER UPDATE OF "password"
