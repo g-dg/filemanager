@@ -100,14 +100,15 @@ CREATE TABLE "logins"(
 
 -- Sessions
 CREATE TABLE "sessions"(
-	"id" TEXT PRIMARY KEY ON CONFLICT REPLACE,
-	"login" INTEGER REFERENCES "logins" ON UPDATE CASCADE ON DELETE CASCADE,
-	"last_used" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
+	"id" TEXT PRIMARY KEY ON CONFLICT REPLACE, -- Session ID
+	"login" INTEGER REFERENCES "logins" ON UPDATE CASCADE ON DELETE CASCADE, -- Login ID, used to tell which user is logged in
+	"last_used" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')) -- Session timestamp
 );
+-- Session data
 CREATE TABLE "session_data"(
-	"session" TEXT NOT NULL REFERENCES "sessions" ON UPDATE CASCADE ON DELETE CASCADE,
-	"key" TEXT NOT NULL,
-	"value" TEXT,
+	"session" TEXT NOT NULL REFERENCES "sessions" ON UPDATE CASCADE ON DELETE CASCADE, -- Session ID
+	"key" TEXT NOT NULL, -- Session data key
+	"value" TEXT, -- Session data value (Serialized as JSON)
 	PRIMARY KEY("session", "key") ON CONFLICT REPLACE
 );
 
