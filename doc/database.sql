@@ -183,18 +183,19 @@ File types:
 NULL: other/unknown
 */
 CREATE TABLE "search_index_entries"(
-	"id" INTEGER PRIMARY KEY,
-	"parent" INTEGER REFERENCES "search_index_entries" ON UPDATE CASCADE ON DELETE CASCADE,
-	"name" TEXT NOT NULL,
-	"type" INTEGER NOT NULL,
-	"mtime" INTEGER NOT NULL,
-	"size" INTEGER NOT NULL,
-	"last_indexed" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
+	"id" INTEGER PRIMARY KEY, -- File/directory ID
+	"parent" INTEGER REFERENCES "search_index_entries" ON UPDATE CASCADE ON DELETE CASCADE, -- Parent directory ID
+	"name" TEXT NOT NULL, -- File/directory name
+	"type" INTEGER NOT NULL, -- Basic file type (file/directory)
+	"mtime" INTEGER NOT NULL, -- Time last modified
+	"size" INTEGER NOT NULL, -- File size (in bytes)
+	"last_indexed" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')), -- Last index timestamp
 	UNIQUE("parent", "name") ON CONFLICT REPLACE
 );
+-- Keyword index
 CREATE TABLE "search_index_keywords"(
-	"entry" INTEGER NOT NULL REFERENCES "search_index_entries" ON UPDATE CASCADE ON DELETE CASCADE,
-	"keyword" TEXT NOT NULL
+	"entry" INTEGER NOT NULL REFERENCES "search_index_entries" ON UPDATE CASCADE ON DELETE CASCADE, -- File/directory entry ID
+	"keyword" TEXT NOT NULL -- Keyword
 );
 CREATE INDEX "index_search_index_keywords_keyword" ON "search_index_keywords"("keyword");
 
