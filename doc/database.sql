@@ -255,7 +255,7 @@ LEFT JOIN "settings" ON "settings"."key" = "setting_defs"."key" AND "settings"."
 -- Find which user is using a session
 CREATE VIEW "view_session_user" AS SELECT
 	"sessions"."id" AS "session_id",
-	"logins"."user" AS "user_id",
+	"logins"."user" AS "user_id"
 FROM "sessions"
 LEFT JOIN "logins" ON "sessions"."login" = "logins"."id";
 
