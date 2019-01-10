@@ -68,8 +68,5 @@ require_once('server/loader.php');
 loader_load('server');
 loader_load('client');
 
-// Run the inits
-loader_exec_inits();
-
 // Execute the requested page
 exec_page();
