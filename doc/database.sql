@@ -158,16 +158,8 @@ CREATE TABLE "bookmarks"(
 	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
 	"name" TEXT NOT NULL UNIQUE ON CONFLICT REPLACE,
 	"path" TEXT NOT NULL,
-	"sort_order" INTEGER NOT NULL,
-	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')),
-	"modified" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
+	"sort_order" INTEGER NOT NULL
 );
-CREATE TRIGGER "trigger_bookmarks_update_modified"
-AFTER UPDATE OF "name", "path"
-ON "bookmarks" FOR EACH ROW
-BEGIN
-	UPDATE "bookmarks" SET "modified" = STRFTIME('%s', 'now') WHERE rowid = NEW.rowid;
-END;
 
 -- Access history
 CREATE TABLE "history"(
