@@ -8,6 +8,7 @@ BEGIN TRANSACTION;
 PRAGMA user_version = 3000000;
 
 -- Delete previously existing tables (if any)
+DROP VIEW IF EXISTS "view_session_user";
 DROP VIEW IF EXISTS "view_settings";
 DROP VIEW IF EXISTS "view_users_groups_mountpoints_enabled";
 DROP VIEW IF EXISTS "view_users_groups_mountpoints";
