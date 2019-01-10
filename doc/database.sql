@@ -164,17 +164,15 @@ CREATE TABLE "history"(
 	"timestamp" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')) -- Access time
 );
 
--- Extensions to content-types
+-- Filename extension to content-type mapping tables
 CREATE TABLE "extensions_to_content_types"(
-	"extension" TEXT PRIMARY KEY ON CONFLICT REPLACE NOT NULL,
-	"type" TEXT NOT NULL,
-	"subtype" TEXT NOT NULL
+	"extension" TEXT PRIMARY KEY ON CONFLICT REPLACE NOT NULL, -- Filename extension
+	"type" TEXT NOT NULL, -- Main type (eg. text, image, video) (ie. the part before the slash in the content-type header)
+	"subtype" TEXT NOT NULL -- Subtype (ie. the part after the slash in the content header)
 );
-
---  Content-types to extensions
 CREATE TABLE "content_types_to_extensions"(
-	"content_type" TEXT PRIMARY KEY ON CONFLICT REPLACE NOT NULL,
-	"extension" TEXT NOT NULL
+	"content_type" TEXT PRIMARY KEY ON CONFLICT REPLACE NOT NULL, -- Full content type
+	"extension" TEXT NOT NULL -- Filename extension
 );
 
 -- Search Index
