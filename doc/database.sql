@@ -42,7 +42,6 @@ CREATE TABLE "users"(
 	"read_only" INTEGER NOT NULL DEFAULT 0, -- Whether the user can change anything to do with their account (such as assword)
 	"enabled" INTEGER NOT NULL DEFAULT 1, -- Whether the account is enabled
 	"description" TEXT, -- Account details, only viewable and editable by administrator
-	"created" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')), -- When the user was created
 	"password_changed" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')) -- When the user's password was last changed
 );
 -- Updates the user's last password change field
