@@ -210,13 +210,11 @@ CREATE VIEW "view_users_groups_mountpoints" AS SELECT
 	"users"."enabled" AS "user_enabled",
 	"users"."description" AS "user_description",
 	"users"."created" AS "user_created",
-	"users"."modified" AS "user_modified",
 	"groups"."id" AS "group_id",
 	"groups"."name" AS "group_name",
 	"groups"."enabled" AS "group_enabled",
 	"groups"."description" AS "group_description",
 	"groups"."created" AS "group_created",
-	"groups"."modified" AS "group_modified",
 	"mountpoints"."id" AS "mountpoint_id",
 	"mountpoints"."name" AS "mountpoint_name",
 	"mountpoints"."mountpoint" AS "mountpoint_mountpoint",
@@ -225,7 +223,6 @@ CREATE VIEW "view_users_groups_mountpoints" AS SELECT
 	"mountpoints"."enabled" AS "mountpoint_enabled",
 	"mountpoints"."description" AS "mountpoint_description",
 	"mountpoints"."created" AS "mountpoint_created",
-	"mountpoints"."modified" AS "mountpoint_modified"
 FROM users
 INNER JOIN "users_in_groups" ON "users"."id" = "users_in_groups"."user"
 INNER JOIN "groups" ON "groups"."id" = "users_in_groups"."group"
@@ -242,12 +239,10 @@ CREATE VIEW "view_users_groups_mountpoints_enabled" AS SELECT
 	"user_read_only",
 	"user_description",
 	"user_created",
-	"user_modified",
 	"group_id",
 	"group_name",
 	"group_description",
 	"group_created",
-	"group_modified",
 	"mountpoint_id",
 	"mountpoint_name",
 	"mountpoint_mountpoint",
@@ -255,7 +250,6 @@ CREATE VIEW "view_users_groups_mountpoints_enabled" AS SELECT
 	"mountpoint_writable",
 	"mountpoint_description",
 	"mountpoint_created",
-	"mountpoint_modified"
 FROM "view_users_groups_mountpoints"
 WHERE "user_enabled" AND "group_enabled" AND "mountpoint_enabled";
 
@@ -266,7 +260,6 @@ CREATE VIEW "view_settings" AS SELECT
 	"setting_defs"."default" AS "default_value",
 	"setting_defs"."system_value" AS "system_value",
 	COALESCE("settings"."user_value", "setting_defs"."system_value") AS "user_value",
-	COALESCE("settings"."modified", "setting_defs"."modified") AS "modified"
 FROM "setting_defs"
 LEFT JOIN "users" ON 1
 LEFT JOIN "settings" ON "settings"."key" = "setting_defs"."key" AND "settings"."user" = "users"."id";
