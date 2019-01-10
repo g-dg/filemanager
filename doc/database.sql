@@ -143,12 +143,7 @@ CREATE TABLE "mountpoints"(
 CREATE TABLE "mountpoints_in_groups"(
 	"mountpoint" INTEGER NOT NULL REFERENCES "mountpoints" ON UPDATE CASCADE ON DELETE CASCADE, -- Mountpoint ID
 	"group" INTEGER NOT NULL REFERENCES "groups" ON UPDATE CASCADE ON DELETE CASCADE, -- Group ID
-	"list" INTEGER NOT NULL DEFAULT 1, -- List files inside directories
-	"create" INTEGER NOT NULL DEFAULT 0, -- Create files and directories
-	"write" INTEGER NOT NULL DEFAULT 0, -- Modify file contents
-	"rename" INTEGER NOT NULL DEFAULT 0, -- Rename files, keeping them in the current directory
-	"move" INTEGER NOT NULL DEFAULT 0, -- Move files to different spots within the mountpoint
-	"delete" INTEGER NOT NULL DEFAULT 0, -- Delete files and directories, required for moving to other mountpoints
+	"writable" INTEGER NOT NULL DEFAULT 0, -- Whether the mountpoint is writable by the group
 	PRIMARY KEY("mountpoint", "group") ON CONFLICT REPLACE
 );
 
