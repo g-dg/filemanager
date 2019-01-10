@@ -176,17 +176,11 @@ CREATE TABLE "content_types_to_extensions"(
 );
 
 -- Search Index
-/*
-File types:
-0: file
-1: directory
-NULL: other/unknown
-*/
 CREATE TABLE "search_index_entries"(
 	"id" INTEGER PRIMARY KEY, -- File/directory ID
 	"parent" INTEGER REFERENCES "search_index_entries" ON UPDATE CASCADE ON DELETE CASCADE, -- Parent directory ID
 	"name" TEXT NOT NULL, -- File/directory name
-	"type" INTEGER NOT NULL, -- Basic file type (file/directory)
+	"type" INTEGER NOT NULL, -- File type (first part of content-type, "directory" for directories, and "unknown" for unknown files/directories)
 	"mtime" INTEGER NOT NULL, -- Time last modified
 	"size" INTEGER NOT NULL, -- File size (in bytes)
 	"last_indexed" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')), -- Last index timestamp
