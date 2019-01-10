@@ -154,10 +154,10 @@ CREATE TABLE "mountpoints_in_groups"(
 
 -- Bookmarks
 CREATE TABLE "bookmarks"(
-	"id" INTEGER PRIMARY KEY,
-	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
-	"name" TEXT NOT NULL,
-	"path" TEXT NOT NULL,
+	"id" INTEGER PRIMARY KEY, -- Bookmark ID
+	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE, -- User ID
+	"name" TEXT NOT NULL, -- Bookmark name
+	"path" TEXT NOT NULL, -- Bookmark path (not checked if exists)
 	UNIQUE("user", "name") ON CONFLICT REPLACE
 );
 
