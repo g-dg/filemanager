@@ -9,12 +9,7 @@ if (!defined('GARNETDG_FILEMANAGER')) {
 class LoaderException extends Exception {}
 
 /**
- * The inits registerd through registerInit()
- */
-$loader_registered_inits = [];
-
-/**
- * Loads the specified directory
+ * Loads a directory
  * @param directory The directory (in relation to the current directory)
  * @return bool whether everything was loaded correctly
  * @throws LoaderException when the loader cannot load something
@@ -36,42 +31,4 @@ function loader_load($directory)
 		throw new LoaderException('Loader could not read "' . $directory . '".');
 	}
 	return true;
-}
-
-/**
- * Executes the inits registered with registerInit()
- */
-function loader_exec_inits()
-{
-	global $loader_registered_inits;
-
-	krsort($loader_registered_inits);
-
-	foreach ($loader_registered_inits as $priority_level) {
-		foreach ($priority_level as $init_function) {
-			call_user_func($init_function);
-		}
-	}
-}
-
-/**
- * Clears the registered inits
- */
-function loader_clear_inits()
-{
-	global $loader_registered_inits;
-
-	$loader_registered_inits = [];
-}
-
-/**
- * Registers an init
- * @param function the init function to run
- * @param priority which priority to run the init at, higher priority runs first
- */
-function loader_register_init($function, $priority = 0)
-{
-	global $loader_registered_inits;
-
-	$loader_registered_inits[$priority][] = $function;
 }
