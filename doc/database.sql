@@ -204,20 +204,17 @@ CREATE VIEW "view_users_groups_mountpoints" AS SELECT
 	"users"."read_only" AS "user_read_only",
 	"users"."enabled" AS "user_enabled",
 	"users"."description" AS "user_description",
-	"users"."created" AS "user_created",
 	"groups"."id" AS "group_id",
 	"groups"."name" AS "group_name",
 	"groups"."enabled" AS "group_enabled",
 	"groups"."description" AS "group_description",
-	"groups"."created" AS "group_created",
 	"mountpoints"."id" AS "mountpoint_id",
 	"mountpoints"."name" AS "mountpoint_name",
 	"mountpoints"."mountpoint" AS "mountpoint_mountpoint",
 	"mountpoints"."target" AS "mountpoint_target",
 	"mountpoints"."writable" AND "mountpoints_in_groups"."writable" AS "mountpoint_writable",
 	"mountpoints"."enabled" AS "mountpoint_enabled",
-	"mountpoints"."description" AS "mountpoint_description",
-	"mountpoints"."created" AS "mountpoint_created"
+	"mountpoints"."description" AS "mountpoint_description"
 FROM users
 INNER JOIN "users_in_groups" ON "users"."id" = "users_in_groups"."user"
 INNER JOIN "groups" ON "groups"."id" = "users_in_groups"."group"
@@ -233,18 +230,15 @@ CREATE VIEW "view_users_groups_mountpoints_enabled" AS SELECT
 	"user_administrator",
 	"user_read_only",
 	"user_description",
-	"user_created",
 	"group_id",
 	"group_name",
 	"group_description",
-	"group_created",
 	"mountpoint_id",
 	"mountpoint_name",
 	"mountpoint_mountpoint",
 	"mountpoint_target",
 	"mountpoint_writable",
-	"mountpoint_description",
-	"mountpoint_created"
+	"mountpoint_description"
 FROM "view_users_groups_mountpoints"
 WHERE "user_enabled" AND "group_enabled" AND "mountpoint_enabled";
 
