@@ -156,8 +156,9 @@ CREATE TABLE "mountpoints_in_groups"(
 CREATE TABLE "bookmarks"(
 	"id" INTEGER PRIMARY KEY,
 	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
-	"name" TEXT NOT NULL UNIQUE ON CONFLICT REPLACE,
-	"path" TEXT NOT NULL
+	"name" TEXT NOT NULL,
+	"path" TEXT NOT NULL,
+	UNIQUE("user", "name") ON CONFLICT REPLACE
 );
 
 -- Access history
