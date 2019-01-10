@@ -216,7 +216,7 @@ CREATE VIEW "view_users_groups_mountpoints" AS SELECT
 	"mountpoints"."writable" AND "mountpoints_in_groups"."writable" AS "mountpoint_writable",
 	"mountpoints"."enabled" AS "mountpoint_enabled",
 	"mountpoints"."description" AS "mountpoint_description",
-	"mountpoints"."created" AS "mountpoint_created",
+	"mountpoints"."created" AS "mountpoint_created"
 FROM users
 INNER JOIN "users_in_groups" ON "users"."id" = "users_in_groups"."user"
 INNER JOIN "groups" ON "groups"."id" = "users_in_groups"."group"
@@ -243,7 +243,7 @@ CREATE VIEW "view_users_groups_mountpoints_enabled" AS SELECT
 	"mountpoint_target",
 	"mountpoint_writable",
 	"mountpoint_description",
-	"mountpoint_created",
+	"mountpoint_created"
 FROM "view_users_groups_mountpoints"
 WHERE "user_enabled" AND "group_enabled" AND "mountpoint_enabled";
 
@@ -253,7 +253,7 @@ CREATE VIEW "view_settings" AS SELECT
 	"users"."id" AS "user",
 	"setting_defs"."default" AS "default_value",
 	"setting_defs"."system_value" AS "system_value",
-	COALESCE("settings"."user_value", "setting_defs"."system_value") AS "user_value",
+	COALESCE("settings"."user_value", "setting_defs"."system_value") AS "user_value"
 FROM "setting_defs"
 LEFT JOIN "users" ON 1
 LEFT JOIN "settings" ON "settings"."key" = "setting_defs"."key" AND "settings"."user" = "users"."id";
