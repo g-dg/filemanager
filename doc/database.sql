@@ -258,5 +258,12 @@ FROM "setting_defs"
 LEFT JOIN "users" ON 1
 LEFT JOIN "settings" ON "settings"."key" = "setting_defs"."key" AND "settings"."user" = "users"."id";
 
+-- Find which user is using a session
+CREATE VIEW "view_session_user" AS SELECT
+	"sessions"."id" AS "session_id",
+	"logins"."user" AS "user_id",
+FROM "sessions"
+LEFT JOIN "logins" ON "sessions"."login" = "logins"."id";
+
 -- End the transaction
 COMMIT TRANSACTION;
