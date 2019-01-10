@@ -156,12 +156,12 @@ CREATE TABLE "bookmarks"(
 	UNIQUE("user", "name") ON CONFLICT REPLACE
 );
 
--- Access history
+-- File access history
 CREATE TABLE "history"(
-	"id" INTEGER PRIMARY KEY,
-	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
-	"path" TEXT NOT NULL,
-	"timestamp" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now'))
+	"id" INTEGER PRIMARY KEY, -- Entry ID
+	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE, -- User ID
+	"path" TEXT NOT NULL, -- Path of file accessed
+	"timestamp" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')) -- Access time
 );
 
 -- Extensions to content-types
