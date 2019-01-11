@@ -12,7 +12,7 @@ Settings
 
 - `session.gc.probability`: `0.001`
 - `session.gc.age.max`: `31536000`
-- `session.cookie.name`: `"sessid"`
+- `session.id.parameter.name`: `"sessid"`
 - `session.id.length`: `255`
 - `session.id.chars`: `"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"`
 - `session.age.max`: `2592000`
