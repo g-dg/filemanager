@@ -15,12 +15,37 @@ class NotAuthenticatedException extends Exception {}
 function authenticate($username = null, $password = null, $die_on_failure = false) {
 	session_start();
 	if (!is_null(session_get('auth.user.id'))) { // check if not already authenticated
-		if (is_null($username) && is_null($password)) { // check for remember-me cookie
-
-		} else { // log in
-			
+		if (is_null($username) && is_null($password)) {
+			// no username/password specified, not able to log in
+			if ($die_on_failure) die();
+			return false;
+		} else {
+			$user_records = database_query('SELECT "id", "name", "password", "administrator", "read_only" FROM "users" WHERE "name" = ? AND "enabled";', [$username]);
+			if (isset($user_records[0])) { // check if user exists or is enabled
+				// user exists and is enabled
+				$user_record = $user_record[0];
+				if (password_verify($password, $user_record['password'])) { // check password
+					// password is valid
+					// set session values
+					session_lock();
+					session_set('auth.user.id', (int)$user_record['id']);
+					session_set('auth.user.name', (string)$user_record['name']);
+					session_set('auth.user.administrator', ($user_record['administrator'] == 1));
+					session_set('auth.user.read_only', ($user_record['read_only'] == 1));
+					session_unlock();
+					return true;
+				} else {
+					if ($die_on_failure) die();
+					return false;
+				}
+			} else {
+				// user doesn't exist or is disabled
+				if ($die_on_failure) die();
+				return false;
+			}
 		}
 	} else {
+		// already logged in
 		return true;
 	}
 }
