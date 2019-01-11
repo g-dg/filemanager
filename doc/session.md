@@ -9,7 +9,6 @@ Session data is stored in the database as a PHP serialized string.
 Session keys used
 -----------------
 
- - `session.csrf.token`
  - `auth.user.id`
  - `auth.user.name`
  - `auth.user.administrator`
