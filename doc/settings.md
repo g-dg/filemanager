@@ -16,8 +16,6 @@ Settings
 - `session.id.length`: `255`
 - `session.id.chars`: `"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"`
 - `session.age.max`: `2592000`
-- `session.csrf_token.length`: `255`
-- `session.csrf_token.chars`: `"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"`
 - `database.analyze.probability`: `0.001`
 - `database.vacuum.probability`: `0.001`
 - `application.base_uri`: `null`
