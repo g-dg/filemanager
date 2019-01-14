@@ -13,7 +13,7 @@ Endpoints
 /groups/{id}
 /mountpoints/{id}
 
-/filesystem/<action>
+/filesystem/<action>		Perform a filesystem action, see Filesystem Actions section
 
 /application/settings		Application setting list
 /application/settings/{key}		Application setting
@@ -34,8 +34,9 @@ Endpoints
 
 /log		Log file (accessable by admin) (clearable by admin)
 
-/session
-/session/{key}
+/sessions		Manage sessions (admin only) or start a session by sending a blank post request
+/sessions/id		Manage client-side session values
+/sessions/id/{key}		Get/update client-side session values
 
 /administration/{command}		Used for running administration commands
 
