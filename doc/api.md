@@ -4,7 +4,7 @@ Garnet DeGelder's File Manager 3.0 HTTP REST API Documentation
 Endpoints
 ---------
 ```
-/login		Post a username and password to log in, returns session ID
+/login		Post a username and password to log in, returns session ID if GET parameter `start_session` is true
 
 /users
 /groups
