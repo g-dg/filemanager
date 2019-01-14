@@ -16,12 +16,11 @@ $session_id = null;
 
 /**
  * Starts a new session or resumes any available one
- * @param sessid The session ID (pass this if not to be read from the cookie)
- * @param set_cookie Set this to false to not set the session cookie
+ * @param sessid The session ID (pass this if not to be read from the session parameter)
  * @param regenerate_on_failure Generates a new session on validation failure
  * @return mixed false if failed, session id if successful
  */
-function session_start($sessid = null, $set_cookie = true, $regenerate_on_failure = false)
+function session_start($sessid = null, $regenerate_on_failure = false)
 {
 	global $session_id;
 
@@ -32,15 +31,15 @@ function session_start($sessid = null, $set_cookie = true, $regenerate_on_failur
 			session_gc();
 		}
 
-		$cookie_name = settings_get_system('session.cookie.name');
+		$parameter_name = settings_get_system('session.id.parameter.name');
 
 		// get the session ID
 		if (!is_null($sessid)) { // the session ID is passed as a parameter of the function
 			$session_id = $sessid;
 		} else {
-			// check if the cookie is set
-			if (isset($_COOKIE[$cookie_name])) {
-				$session_id = $_COOKIE[$cookie_name];
+			// check if the parameter is set
+			if (isset($_GET[$parameter_name])) {
+				$session_id = $_GET[$parameter_name];
 			}
 		}
 
@@ -53,9 +52,6 @@ function session_start($sessid = null, $set_cookie = true, $regenerate_on_failur
 					if ($generate_new_on_failure) {
 						$session_id = generate_random_string(settings_get_system('session.id.length'), settings_get_system('session.id.chars'));
 						database_query('INSERT INTO "sessions"("id") VALUES (?);', [$session_id]);
-
-						// generate the CSRF token
-						session_set('session.csrf.token', generate_random_string(settings_get_system('session.csrf_token.length'), settings_get_system('session.csrf_token.chars')));
 					} else {
 						return false;
 					}
@@ -67,18 +63,10 @@ function session_start($sessid = null, $set_cookie = true, $regenerate_on_failur
 				// generate a new session
 				$session_id = generate_random_string(settings_get_system('session.id.length'), settings_get_system('session.id.chars'));
 				database_query('INSERT INTO "sessions"("id") VALUES (?);', [$session_id]);
-
-				// generate the CSRF token
-				session_set('session.csrf.token', generate_random_string(settings_get_system('session.csrf_token.length'), settings_get_system('session.csrf_token.chars')));
 			}
 		}
 		finally {
 			database_unlock();
-		}
-		
-		// set the cookie
-		if ($set_cookie) {
-			setcookie($cookie_name, $session_id, 0, dirname($_SERVER['SCRIPT_NAME']), "", false, true);
 		}
 	}
 
@@ -88,9 +76,8 @@ function session_start($sessid = null, $set_cookie = true, $regenerate_on_failur
 /**
  * Creates a new session
  * @param destroy_previous destroys the previous session (session must have already been started)
- * @param set_cookie sets the cookie with the new session id
  */
-function session_new($destroy_previous = false, $set_cookie = true)
+function session_new($destroy_previous = false)
 {
 	global $session_id;
 
@@ -101,14 +88,6 @@ function session_new($destroy_previous = false, $set_cookie = true)
 	// generate a new session
 	$session_id = generate_random_string(settings_get_system('session.id.length'), settings_get_system('session.id.chars'));
 	database_query('INSERT INTO "sessions"("id") VALUES (?);', [$session_id]);
-
-	// generate a new CSRF token
-	session_set('session.csrf.token', generate_random_string(settings_get_system('session.csrf_token.length'), settings_get_system('session.csrf_token.chars')));
-
-	// set the cookie
-	if ($set_cookie) {
-		setcookie($cookie_name, $session_id, 0, "", "", false, true);
-	}
 }
 
 /**
@@ -233,7 +212,7 @@ function session_gc()
 }
 
 /**
- * Unsets the session cookie and destroys all data associated with it
+ * Destroys all data associated with the session
  */
 function session_destroy()
 {
