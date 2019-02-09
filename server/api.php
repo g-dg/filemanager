@@ -20,5 +20,42 @@ function exec_api($request)
 		return false;
 	}
 
+	switch ($api_request[0]) {
 
+		case 'login':
+
+			break;
+		
+		case 'users':
+
+			break;
+
+		case 'groups':
+
+			break;
+		
+		case 'mountpoints':
+
+			break;
+
+		case 'filesystem':
+
+			break;
+
+		case 'application':
+
+			break;
+
+		case 'sessions':
+
+			break;
+
+		case 'administration':
+
+			break;
+		
+		case 'search':
+
+			break;
+	}
 }
