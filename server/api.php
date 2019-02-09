@@ -57,5 +57,9 @@ function exec_api($request)
 		case 'search':
 
 			break;
+
+		default:
+			http_response_code(404);
+			return false;
 	}
 }
