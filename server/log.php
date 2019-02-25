@@ -25,6 +25,11 @@ function log($level, $message, $type, $details = null)
 	// prevent excessive recursive calls to logging
 	if ($log_recursion_level < 2) {
 		try {
+			// ignore if too low priority (getting settings may cause logging)
+			if ($level > settings_get_system('log.min_level')) {
+				$log_recursion_level--;
+				return;
+			}
 			if (session_started()) {
 				// getting user id may cause logging
 				$current_user_id = auth_current_user_id();
@@ -78,6 +83,22 @@ function log($level, $message, $type, $details = null)
 	} catch (DatabaseException $e) {
 		// as the database is not working, we can't log anything, so we should exit for security reasons
 		http_response_code(500);
+		if (defined('GARNETDG_FILEMANAGER_DEBUG_ENABLE') && GARNETDG_FILEMANAGER_DEBUG_ENABLE) {
+			header('Content-Type: application/json');
+			echo json_encode(['error' => [
+				':level' => (int)$level,
+				':type' => (string)$type,
+				':user' => $current_user_id,
+				':message' => (string)$message,
+				':details' => is_null($details) ? null : $details,
+				':client_addr' => isset($_SERVER['REMOTE_ADDR']) ? (string)$_SERVER['REMOTE_ADDR'] : null,
+				':method' => isset($_SERVER['REQUEST_METHOD']) ? (string)$_SERVER['REQUEST_METHOD'] : null,
+				':path' => isset($_SERVER['REQUEST_METHOD']) ? (string)$_SERVER['REQUEST_URI'] : null,
+				':host' => isset($_SERVER['HTTP_HOST']) ? (string)$_SERVER['HTTP_HOST'] : null,
+				':referrer' => isset($_SERVER['HTTP_REFERER']) ? (string)$_SERVER['HTTP_REFERER'] : null,
+				':user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? (string)$_SERVER['HTTP_USER_AGENT'] : null
+			]]);
+		}
 		die();
 	}
 	$log_recursion_level--;
