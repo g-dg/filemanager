@@ -63,7 +63,7 @@ Administration Commands
 
 You must be an administrator to use these commands
 
-- `reIndex`		Used to reindex part of the filesystem or the whole filesystem
-- `clearIndex`		Clears part of the index or the whole index
-- `analyzeDatabase`		Runs `ANALYZE` on the database
-- `vacuumDatabase`		Runs `VACUUM` on the database
+- `search_index_rebuild`		Used to reindex part of the filesystem or the whole filesystem
+- `search_index_clear`		Clears part of the index or the whole index
+- `database_analyze`		Runs `ANALYZE` on the database
+- `database_vacuum`		Runs `VACUUM` on the database
