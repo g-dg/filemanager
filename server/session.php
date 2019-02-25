@@ -9,6 +9,10 @@ if (!defined('GARNETDG_FILEMANAGER')) {
 class SessionException extends Exception {}
 class SessionNotStartedException extends SessionException {}
 
+define('GARNETDG_FILEMANAGER_SESSION_PARAMETER', '_session_id');
+define('GARNETDG_FILEMANAGER_SESSION_ID_LENGTH', 255);
+define('GARNETDG_FILEMANAGER_SESSION_ID_CHARACTERS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
+
 /**
  * The session id for the current request, null if not set
  */
@@ -31,15 +35,13 @@ function session_start($sessid = null, $regenerate_on_failure = false)
 			session_gc();
 		}
 
-		$parameter_name = settings_get_system('session.id.parameter.name');
-
 		// get the session ID
 		if (!is_null($sessid)) { // the session ID is passed as a parameter of the function
 			$session_id = $sessid;
 		} else {
 			// check if the parameter is set
-			if (isset($_GET[$parameter_name])) {
-				$session_id = $_GET[$parameter_name];
+			if (isset($_GET[GARNETDG_FILEMANAGER_SESSION_PARAMETER])) {
+				$session_id = $_GET[GARNETDG_FILEMANAGER_SESSION_PARAMETER];
 			}
 		}
 
@@ -50,7 +52,7 @@ function session_start($sessid = null, $regenerate_on_failure = false)
 				// check if the session is valid
 				if ((int)database_query('SELECT COUNT() FROM "sessions" WHERE "id" = ? AND "last_used" > ?;', [(string)$session_id], time() - settings_get_system('session.age.max'))[0][0] == 0) {
 					if ($generate_new_on_failure) {
-						$session_id = generate_random_string(settings_get_system('session.id.length'), settings_get_system('session.id.chars'));
+						$session_id = generate_random_string(GARNETDG_FILEMANAGER_SESSION_ID_LENGTH, GARNETDG_FILEMANAGER_SESSION_ID_CHARACTERS);
 						database_query('INSERT INTO "sessions"("id") VALUES (?);', [$session_id]);
 					} else {
 						return false;
@@ -61,7 +63,7 @@ function session_start($sessid = null, $regenerate_on_failure = false)
 				}
 			} else {
 				// generate a new session
-				$session_id = generate_random_string(settings_get_system('session.id.length'), settings_get_system('session.id.chars'));
+				$session_id = generate_random_string(GARNETDG_FILEMANAGER_SESSION_ID_LENGTH, GARNETDG_FILEMANAGER_SESSION_ID_CHARACTERS);
 				database_query('INSERT INTO "sessions"("id") VALUES (?);', [$session_id]);
 			}
 		}
