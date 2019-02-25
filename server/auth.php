@@ -13,7 +13,6 @@ class NotAuthenticatedException extends Exception {}
  * @return bool Whether the authentication was successful or not
  */
 function authenticate($username = null, $password = null, $die_on_failure = false) {
-	session_start();
 	if (!is_null(session_get('auth.user.id'))) { // check if not already authenticated
 		if (is_null($username) && is_null($password)) {
 			// no username/password specified, not able to log in
