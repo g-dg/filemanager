@@ -9,7 +9,7 @@ if (!defined('GARNETDG_FILEMANAGER')) {
 class SessionException extends Exception {}
 class SessionNotStartedException extends SessionException {}
 
-define('GARNETDG_FILEMANAGER_SESSION_PARAMETER', '_session_id');
+define('GARNETDG_FILEMANAGER_SESSION_PARAMETER', '_sessid');
 define('GARNETDG_FILEMANAGER_SESSION_ID_LENGTH', 255);
 define('GARNETDG_FILEMANAGER_SESSION_ID_CHARACTERS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
 
