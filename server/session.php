@@ -9,6 +9,8 @@ if (!defined('GARNETDG_FILEMANAGER')) {
 class SessionException extends Exception {}
 class SessionNotStartedException extends SessionException {}
 
+define('GARNETDG_FILEMANAGER_SESSION_PARAMETER', '_session_id');
+
 /**
  * The session id for the current request, null if not set
  */
@@ -31,15 +33,13 @@ function session_start($sessid = null, $regenerate_on_failure = false)
 			session_gc();
 		}
 
-		$parameter_name = settings_get_system('session.id.parameter.name');
-
 		// get the session ID
 		if (!is_null($sessid)) { // the session ID is passed as a parameter of the function
 			$session_id = $sessid;
 		} else {
 			// check if the parameter is set
-			if (isset($_GET[$parameter_name])) {
-				$session_id = $_GET[$parameter_name];
+			if (isset($_GET[GARNETDG_FILEMANAGER_SESSION_PARAMETER])) {
+				$session_id = $_GET[GARNETDG_FILEMANAGER_SESSION_PARAMETER];
 			}
 		}
 
