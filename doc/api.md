@@ -16,32 +16,30 @@ Endpoints
 /filesystem/<action>		Perform a filesystem action, see Filesystem Actions section
 
 /application/settings		Application setting list
-/application/settings/{key}		Application setting
-/application/settings/{key}/reset		Post to reset
+/application/settings/{key}		Application setting (DELETE to reset)
 
 /users/{id}/settings		User setting list
-/users/{id}/settings/{key}		User setting
-/users/{id}/settings/{key}/reset		Post to reset
+/users/{id}/settings/{key}		User setting (DELETE to reset)
 
-/users/{id}/history		User history
-/users/{id}/history/{id}		History item
+/users/{id}/history		User history (NOT YET IMPLEMENTED)
+/users/{id}/history/{id}		History item (NOT YET IMPLEMENTED)
 
-/users/{id}/bookmarks		User bookmarks
-/users/{id}/bookmarks/{id}		User bookmark
+/users/{id}/bookmarks		User bookmarks (NOT YET IMPLEMENTED)
+/users/{id}/bookmarks/{id}		User bookmark (NOT YET IMPLEMENTED)
 
-/users/{id}/logins		User login list
-/users/{id}/logins/{id}		User login
+/users/{id}/logins		User login list (NOT YET IMPLEMENTED)
+/users/{id}/logins/{id}		User login (NOT YET IMPLEMENTED)
 
-/log		Log file (accessable by admin) (clearable by admin)
+/log		Log file (accessable by admin) (clearable by admin) (NOT YET IMPLEMENTED)
 
-/sessions		Manage sessions (admin only) or start a session by sending a blank post request
-/sessions/id		Manage client-side session values
-/sessions/id/{key}		Get/update client-side session values
+/sessions		Manage sessions (admin only, NOT YET IMPLEMENTED) or start a session by sending a blank post request
+/sessions/id		Manage client-side session values (NOT YET IMPLEMENTED)
+/sessions/id/{key}		Get/update client-side session values (NOT YET IMPLEMENTED)
 
 /administration/{command}		Used for running administration commands
 
-/search		Performs a search
-/search/results/{search_id}		The results of a search
+/search		Performs a search, returns a search ID
+/search/{search_id}		The results of a search
 ```
 
 Filesystem Actions
