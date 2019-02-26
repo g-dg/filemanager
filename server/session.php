@@ -104,7 +104,7 @@ function session_started()
  * Get the session ID for the current session
  * @return mixed session id as a string if started, null if not
  */
-function session_get_id()
+function session_id()
 {
 	global $session_id;
 
