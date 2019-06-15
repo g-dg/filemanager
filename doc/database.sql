@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS "users_in_groups";
 DROP TABLE IF EXISTS "groups";
 DROP TABLE IF EXISTS "session_data";
 DROP TABLE IF EXISTS "sessions";
-DROP TABLE IF EXISTS "logins";
+DROP TABLE IF EXISTS "login_attempts";
 DROP TABLE IF EXISTS "settings";
 DROP TABLE IF EXISTS "setting_defs";
 DROP TABLE IF EXISTS "log";
@@ -82,8 +82,8 @@ CREATE TABLE "settings"(
 	PRIMARY KEY("user", "key") ON CONFLICT REPLACE
 );
 
--- Login history
-CREATE TABLE "logins"(
+-- Login attempts
+CREATE TABLE "login_attempts"(
 	"id" INTEGER PRIMARY KEY, -- Login ID
 	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE, -- User ID
 	"successful" INTEGER NOT NULL DEFAULT 1, -- Whether the login was successful
