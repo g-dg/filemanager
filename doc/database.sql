@@ -23,7 +23,6 @@ DROP TABLE IF EXISTS "mountpoints_in_groups";
 DROP TABLE IF EXISTS "mountpoints";
 DROP TABLE IF EXISTS "users_in_groups";
 DROP TABLE IF EXISTS "groups";
-DROP TABLE IF EXISTS "login_persistence";
 DROP TABLE IF EXISTS "session_data";
 DROP TABLE IF EXISTS "sessions";
 DROP TABLE IF EXISTS "logins";
@@ -105,14 +104,6 @@ CREATE TABLE "session_data"(
 	"key" TEXT NOT NULL, -- Session data key
 	"value" TEXT, -- Session data value (Serialized as JSON)
 	PRIMARY KEY("session", "key") ON CONFLICT REPLACE
-);
-
--- Login Persistence
-CREATE TABLE "login_persistence"(
-	"key" TEXT PRIMARY KEY,
-	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE,
-	"secret" TEXT NOT NULL,
-	"expires" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now') + 31536000)
 );
 
 -- Groups
