@@ -68,6 +68,7 @@ function session_new()
 
 /**
  * Destroys a session and all data associated with it
+ * Requires started session
  */
 function session_destroy()
 {
@@ -85,6 +86,7 @@ function session_destroy()
 /**
  * Destroys all sessions associated with a user, effectively logging them out of all of them
  * WARNING: There are no checks to ensure the user is the current user
+ * Requires started session if keep_current is true (destroys all sessions if not started)
  * @param user_id User to delete all sessions of (null deletes all sessions for everyone)
  * @param keep_current Don't destroy the current session (if true and session is not started, it will delete all sessions)
  */
@@ -119,7 +121,7 @@ function session_started()
 
 /**
  * Get the session ID for the current session
- * @return mixed session id as a string if started, null if not
+ * @return mixed session id as a string if started, null if not started
  */
 function session_id()
 {
@@ -130,6 +132,7 @@ function session_id()
 
 /**
  * Sets the specified key
+ * Requires started session
  * @param key the key to set
  * @param value the value (may be any PHP serializable type)
  */
@@ -151,6 +154,7 @@ function session_set($key, $value)
 
 /**
  * Gets the value of the specified key
+ * Requires started session
  * @param key the key to get
  * @param value the default value if the key is not set
  * @return mixed the value
@@ -179,6 +183,7 @@ function session_get($key, $default = null)
 
 /**
  * Gets whether the specified key is set
+ * Requires started session
  * @param key the key to check
  * @return bool whether the key exists
  */
@@ -200,6 +205,7 @@ function session_isset($key)
 
 /**
  * Deletes the specified key
+ * Requires started session
  * @param key the key to delete
  */
 function session_unset($key)
@@ -254,6 +260,7 @@ function generate_random_string($length, $chars)
 
 /**
  * Lock the session
+ * Requires started session
  */
 function session_lock()
 {
@@ -266,6 +273,7 @@ function session_lock()
 
 /**
  * Unlock the session
+ * Requires started session
  */
 function session_unlock()
 {
