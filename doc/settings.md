@@ -10,7 +10,6 @@ Settings are stored in the database as JSON strings, and as such can only contai
 Settings
 --------
 
-- `session.gc.probability`: `0.001`
 - `session.max_age`: `31536000`
 - `database.analyze.probability`: `0.001`
 - `database.vacuum.probability`: `0.001`
