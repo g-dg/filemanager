@@ -22,7 +22,6 @@ $session_id = null;
 /**
  * Starts a new session or resumes any available one
  * @param sessid The session ID
- * @return string session id
  */
 function session_start($sessid)
 {
@@ -51,8 +50,6 @@ function session_start($sessid)
 			database_unlock();
 		}
 	}
-
-	return $session_id;
 }
 
 /**
