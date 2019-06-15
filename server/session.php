@@ -8,6 +8,11 @@ if (!defined('GARNETDG_FILEMANAGER')) {
 
 class SessionException extends Exception {}
 class SessionNotStartedException extends SessionException {}
+class SessionInvalidException extends SessionException {}
+
+define('GARNETDG_FILEMANAGER_SESSION_ID_LENGTH', 255);
+define('GARNETDG_FILEMANAGER_SESSION_ID_CHARACTERS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
+define('GARNETDG_FILEMANAGER_SESSION_GC_PROBABILITY', 0.001);
 
 /**
  * The session id for the current request, null if not set
@@ -16,78 +21,91 @@ $session_id = null;
 
 /**
  * Starts a new session or resumes any available one
- * @param sessid The session ID (pass this if not to be read from the session parameter)
- * @param regenerate_on_failure Generates a new session on validation failure
- * @return mixed false if failed, session id if successful
+ * @param sessid The session ID
  */
-function session_start($sessid = null, $regenerate_on_failure = false)
+function session_start($sessid)
 {
 	global $session_id;
 
 	// don't run if the session is already started
 	if (is_null($session_id)) {
 		// check whether to do a garbage-collect
-		if ((mt_rand() / mt_getrandmax()) < settings_get_system('session.gc.probability')) {
+		if ((mt_rand() / mt_getrandmax()) < GARNETDG_FILEMANAGER_SESSION_GC_PROBABILITY) {
 			session_gc();
 		}
 
-		$parameter_name = settings_get_system('session.id.parameter.name');
-
-		// get the session ID
-		if (!is_null($sessid)) { // the session ID is passed as a parameter of the function
-			$session_id = $sessid;
-		} else {
-			// check if the parameter is set
-			if (isset($_GET[$parameter_name])) {
-				$session_id = $_GET[$parameter_name];
-			}
-		}
+		$session_id = $sessid;
 
 		database_lock();
 		try {
-			// check if the session exists
-			if (!is_null($session_id)) {
-				// check if the session is valid
-				if ((int)database_query('SELECT COUNT() FROM "sessions" WHERE "id" = ? AND "last_used" > ?;', [(string)$session_id], time() - settings_get_system('session.age.max'))[0][0] == 0) {
-					if ($generate_new_on_failure) {
-						$session_id = generate_random_string(settings_get_system('session.id.length'), settings_get_system('session.id.chars'));
-						database_query('INSERT INTO "sessions"("id") VALUES (?);', [$session_id]);
-					} else {
-						return false;
-					}
-				} else {
-					// update timestamp
-					database_query('UPDATE "sessions" SET "last_used" = STRFTIME(\'%s\', \'now\') WHERE "id" = ? AND "last_used" < STRFTIME(\'%s\', \'now\');', [$session_id]);
-				}
+			// check if the session is valid
+			if ((int)database_query('SELECT COUNT() FROM "sessions" WHERE "id" = ? AND "last_used" > ?;', [(string)$session_id], time() - settings_get_system('session.max_age'))[0][0] == 0) {
+				throw new SessionInvalidException();
 			} else {
-				// generate a new session
-				$session_id = generate_random_string(settings_get_system('session.id.length'), settings_get_system('session.id.chars'));
-				database_query('INSERT INTO "sessions"("id") VALUES (?);', [$session_id]);
+				// update timestamp
+				database_query('UPDATE "sessions" SET "last_used" = STRFTIME(\'%s\', \'now\') WHERE "id" = ? AND "last_used" < STRFTIME(\'%s\', \'now\');', [$session_id]);
 			}
 		}
 		finally {
 			database_unlock();
 		}
 	}
-
-	return is_null($session_id) ? false : $session_id;
 }
 
 /**
  * Creates a new session
- * @param destroy_previous destroys the previous session (session must have already been started)
+ * @return string new session ID
  */
-function session_new($destroy_previous = false)
+function session_new()
 {
 	global $session_id;
 
-	if ($destroy_previous) {
-		session_destroy();
-	}
-
 	// generate a new session
-	$session_id = generate_random_string(settings_get_system('session.id.length'), settings_get_system('session.id.chars'));
+	$session_id = generate_random_string(GARNETDG_FILEMANAGER_SESSION_ID_LENGTH, GARNETDG_FILEMANAGER_SESSION_ID_CHARACTERS);
 	database_query('INSERT INTO "sessions"("id") VALUES (?);', [$session_id]);
+	return $session_id;
+}
+
+/**
+ * Destroys a session and all data associated with it
+ * Requires started session
+ */
+function session_destroy()
+{
+	global $session_id;
+
+	if (!session_started()) {
+		log(LOG_ERR, 'Could not destroy session (session not started).', 'session');
+		throw new SessionNotStartedException('Could not destroy session (session not started).');
+	} else {
+		database_query('DELETE FROM "sessions" WHERE "id" = ?;', [$session_id]);
+		$session_id = null;
+	}
+}
+
+/**
+ * Destroys all sessions associated with a user, effectively logging them out of all of them
+ * WARNING: There are no checks to ensure the user is the current user
+ * Requires started session if keep_current is true (destroys all sessions if not started)
+ * @param user_id User to delete all sessions of (null deletes all sessions for everyone)
+ * @param keep_current Don't destroy the current session (if true and session is not started, it will delete all sessions)
+ */
+function session_destroy_all($user_id, $keep_current = true) {
+	global $session_id;
+
+	if (!is_null($user_id)) {
+		if ($keep_current && session_started()) {
+			database_query('DELETE FROM "sessions" WHERE "user" = ? AND "id" != ?;', [(int)$user_id, (int)$session_id]);
+		} else {
+			database_query('DELETE FROM "sessions" WHERE "user" = ?;', [(int)$user_id]);
+		}
+	} else {
+		if ($keep_current && session_started()) {
+			database_query('DELETE FROM "sessions" WHERE "id" != ?;', [(int)$session_id]);
+		} else {
+			database_query('DELETE FROM "sessions";');
+		}
+	}
 }
 
 /**
@@ -103,9 +121,9 @@ function session_started()
 
 /**
  * Get the session ID for the current session
- * @return mixed session id as a string if started, null if not
+ * @return mixed session id as a string if started, null if not started
  */
-function session_get_id()
+function session_id()
 {
 	global $session_id;
 
@@ -114,6 +132,7 @@ function session_get_id()
 
 /**
  * Sets the specified key
+ * Requires started session
  * @param key the key to set
  * @param value the value (may be any PHP serializable type)
  */
@@ -135,6 +154,7 @@ function session_set($key, $value)
 
 /**
  * Gets the value of the specified key
+ * Requires started session
  * @param key the key to get
  * @param value the default value if the key is not set
  * @return mixed the value
@@ -163,6 +183,7 @@ function session_get($key, $default = null)
 
 /**
  * Gets whether the specified key is set
+ * Requires started session
  * @param key the key to check
  * @return bool whether the key exists
  */
@@ -184,6 +205,7 @@ function session_isset($key)
 
 /**
  * Deletes the specified key
+ * Requires started session
  * @param key the key to delete
  */
 function session_unset($key)
@@ -208,23 +230,7 @@ function session_unset($key)
  */
 function session_gc()
 {
-	database_query('DELETE FROM "sessions" WHERE "last_used" < ?;', [time() - settings_get_system('session.gc.age.max')]);
-}
-
-/**
- * Destroys all data associated with the session
- */
-function session_destroy()
-{
-	global $session_id;
-
-	if (!session_started()) {
-		//log(LOG_ERR, 'Could not destroy session (session not started).', 'session');
-		//throw new SessionNotStartedException('Could not destroy session (session not started).');
-		return;
-	}
-	database_query('DELETE FROM "sessions" WHERE "id" = ?;', [$session_id]);
-	$session_id = null;
+	database_query('DELETE FROM "sessions" WHERE "last_used" < ?;', [time() - settings_get_system('session.max_age')]);
 }
 
 /**
@@ -254,6 +260,7 @@ function generate_random_string($length, $chars)
 
 /**
  * Lock the session
+ * Requires started session
  */
 function session_lock()
 {
@@ -266,6 +273,7 @@ function session_lock()
 
 /**
  * Unlock the session
+ * Requires started session
  */
 function session_unlock()
 {

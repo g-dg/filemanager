@@ -10,17 +10,11 @@ Settings are stored in the database as JSON strings, and as such can only contai
 Settings
 --------
 
-- `session.gc.probability`: `0.001`
-- `session.gc.age.max`: `31536000`
-- `session.id.parameter.name`: `"sessid"`
-- `session.id.length`: `255`
-- `session.id.chars`: `"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"`
-- `session.age.max`: `31536000`
+- `session.max_age`: `31536000`
 - `database.analyze.probability`: `0.001`
 - `database.vacuum.probability`: `0.001`
 - `application.base_uri`: `null`
 - `application.index_page`: `null`
-- `files.buffersize`: `4096`
 - `search.index.word_separators`: ``" !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"``
 - `search.limit.max_running_searches`: `2`
 - `search.index.autoindex.max_time`: `100`
@@ -28,6 +22,7 @@ Settings
 - `search.index.max_age`: `86400`
 - `auth.delay.base`: `500`
 - `auth.delay.on_previous_failures`: `1000`
+- `log.min_level`: `5`
 
 - `browser.sort.field`: `"name"`
 - `browser.sort.order`: `"asc"`
@@ -35,6 +30,5 @@ Settings
 - `browser.group.field`: `false`
 - `browser.view.mode`: `"list"`
 - `browser.view.hidden`: `false`
-- `browser.view.zoom`: `100`
-- `browser.sidebar.mode`: `false`
+- `browser.sidebar.mode`: `"directory_tree"`
 - `search.hidden.include`: `false`
