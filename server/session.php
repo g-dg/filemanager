@@ -56,16 +56,11 @@ function session_start($sessid)
 
 /**
  * Creates a new session
- * @param destroy_previous destroys the previous session (session must have already been started)
  * @return string new session ID
  */
-function session_new($destroy_previous = false)
+function session_new()
 {
 	global $session_id;
-
-	if ($destroy_previous) {
-		session_destroy();
-	}
 
 	// generate a new session
 	$session_id = generate_random_string(GARNETDG_FILEMANAGER_SESSION_ID_LENGTH, GARNETDG_FILEMANAGER_SESSION_ID_CHARACTERS);
