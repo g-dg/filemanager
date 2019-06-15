@@ -96,7 +96,7 @@ CREATE TABLE "logins"(
 -- Sessions
 CREATE TABLE "sessions"(
 	"id" TEXT PRIMARY KEY ON CONFLICT REPLACE, -- Session ID
-	"login" INTEGER REFERENCES "logins" ON UPDATE CASCADE ON DELETE CASCADE, -- Login ID, used to tell which user is logged in
+	"user" INTEGER NOT NULL REFERENCES "users" ON UPDATE CASCADE ON DELETE CASCADE, -- User ID
 	"last_used" INTEGER NOT NULL DEFAULT (STRFTIME('%s', 'now')) -- Session timestamp
 );
 -- Session data
