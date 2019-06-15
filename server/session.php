@@ -76,13 +76,12 @@ function session_destroy()
 	global $session_id;
 
 	if (!session_started()) {
-		//log(LOG_ERR, 'Could not destroy session (session not started).', 'session');
-		//throw new SessionNotStartedException('Could not destroy session (session not started).');
-		return;
+		log(LOG_ERR, 'Could not destroy session (session not started).', 'session');
+		throw new SessionNotStartedException('Could not destroy session (session not started).');
+	} else {
+		database_query('DELETE FROM "sessions" WHERE "id" = ?;', [$session_id]);
+		$session_id = null;
 	}
-	database_query('DELETE FROM "sessions" WHERE "id" = ?;', [$session_id]);
-	$session_id = null;
-}
 
 /**
  * Checks whether the session is started
