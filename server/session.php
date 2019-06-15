@@ -82,6 +82,31 @@ function session_destroy()
 		database_query('DELETE FROM "sessions" WHERE "id" = ?;', [$session_id]);
 		$session_id = null;
 	}
+}
+
+/**
+ * Destroys all sessions associated with a user, effectively logging them out of all of them
+ * WARNING: There are no checks to ensure the user is the current user
+ * @param user_id User to delete all sessions of (null deletes all sessions for everyone)
+ * @param keep_current Don't destroy the current session (if true and session is not started, it will delete all sessions)
+ */
+function session_destroy_all($user_id, $keep_current = true) {
+	global $session_id;
+
+	if (!is_null($user_id)) {
+		if ($keep_current && session_started()) {
+			database_query('DELETE FROM "sessions" WHERE "user" = ? AND "id" != ?;', [(int)$user_id, (int)$session_id]);
+		} else {
+			database_query('DELETE FROM "sessions" WHERE "user" = ?;', [(int)$user_id]);
+		}
+	} else {
+		if ($keep_current && session_started()) {
+			database_query('DELETE FROM "sessions" WHERE "id" != ?;', [(int)$session_id]);
+		} else {
+			database_query('DELETE FROM "sessions";');
+		}
+	}
+}
 
 /**
  * Checks whether the session is started
