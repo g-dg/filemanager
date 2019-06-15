@@ -33,7 +33,7 @@ Endpoints
 
 /log		Log file (accessable by admin) (clearable by admin) (NOT YET IMPLEMENTED)
 
-/sessions		Manage sessions (admin only, NOT YET IMPLEMENTED) or start a session by sending a blank post request
+/sessions		Manage sessions (admin only, NOT YET IMPLEMENTED)
 /sessions/id		Manage client-side session values (NOT YET IMPLEMENTED)
 /sessions/id/{key}		Get/update client-side session values (NOT YET IMPLEMENTED)
 
