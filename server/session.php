@@ -12,6 +12,7 @@ class SessionInvalidException extends SessionException {}
 
 define('GARNETDG_FILEMANAGER_SESSION_ID_LENGTH', 255);
 define('GARNETDG_FILEMANAGER_SESSION_ID_CHARACTERS', 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
+define('GARNETDG_FILEMANAGER_SESSION_GC_PROBABILITY', 0.001);
 
 /**
  * The session id for the current request, null if not set
@@ -30,7 +31,7 @@ function session_start($sessid)
 	// don't run if the session is already started
 	if (is_null($session_id)) {
 		// check whether to do a garbage-collect
-		if ((mt_rand() / mt_getrandmax()) < settings_get_system('session.gc.probability')) {
+		if ((mt_rand() / mt_getrandmax()) < GARNETDG_FILEMANAGER_SESSION_GC_PROBABILITY) {
 			session_gc();
 		}
 
